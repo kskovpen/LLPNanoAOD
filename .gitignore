@@ -1,0 +1,7 @@
+
+*.log
+*.out
+*.error
+
+UserParameters/__pycache__/
+

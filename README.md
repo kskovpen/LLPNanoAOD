@@ -35,6 +35,7 @@ cmsenv
 cd CMSSW_10_6_29/src
 git-cms-addpkg PhysicsTools/NanoAOD
 cp {LLPNanoAOD base path}/PhysicsTools/NanoAOD/plugins/DSAMuonTableProcuder.cc PhysicsTools/NanoAOD/plugins/.
+cp {LLPNanoAOD base path}/PhysicsTools/NanoAOD/plugins/BuildFile.xml PhysicsTools/NanoAOD/plugins/.
 scram b -j
 ```
 

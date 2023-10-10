@@ -2,8 +2,6 @@
     "output_base_path": "/nfs/dust/cms/user/lrygaard/ttalps_cms",
     "CMSSW_base_path": "/afs/desy.de/user/l/lrygaard/TTALP",
     "LLP_working_path": "/afs/desy.de/user/l/lrygaard/TTALP/LLPNanoAOD",
-    "python_path": "/afs/desy.de/user/l/lrygaard/tools/miniconda3/envs/tta/bin/python3",
-    "n_events": 10,
 
     "datasets": {
         "backgrounds17": {

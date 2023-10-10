@@ -1,0 +1,25 @@
+{
+    "output_base_path": "/base/path/to/dataset/",
+    "CMSSW_base_path": "/path/to/local/CMSSW/directory",
+    "LLP_working_path": "/path/to/LLPNanoAOD",
+
+    "datasets": {
+        
+        "type for DAS": {
+            "custom dataset name for DAS": {
+                "dataset": "DAS dataset name/and run/MINIAODSIM",
+                "input_format": "das",
+                "files": 0
+            }
+        },
+
+        "type for local": {
+            "custom dataset name for local": {
+                "dataset": "/local/path/to/dataset/",
+                "input_format": "das",
+                "files": 0
+            }
+        }
+    }
+}
+

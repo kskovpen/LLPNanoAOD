@@ -18,7 +18,6 @@ n_events=$4
 
 userparams_input="UserParameters/ttalps_userparams.json"
 
-python_path=$(jq -r ".python_path" "$userparams_input")
 CMSSW_base_path=$(jq -r ".CMSSW_base_path" "$userparams_input")
 LLP_working_path=$(jq -r ".LLP_working_path" "$userparams_input")
 output_base_path=$(jq -r ".output_base_path" "$userparams_input")
@@ -63,8 +62,6 @@ fi
 ### CMSSW ENVIRONMENT ###
 cd "${CMSSW_base_path}/CMSSW_10_6_29/src"
 eval `scramv1 runtime -sh`
-echo $CMSSW_BASE
-ls PhysicsTools/NanoAOD/plugins/
 
 ### RUN LLPNanoAOD ###
 cmsRun "${LLP_working_path}/run_LLPNanoAOD.py" "$input_path" "$output_path" "$n_events"

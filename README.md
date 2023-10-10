@@ -10,9 +10,9 @@ LLPNanoAOD includes variables for:
 
 Several files are provided to run LLPNanoAOD, which will be run in order from top to bottom:
 ```
-&rarr run_LLPNanoAOD.sub (for condor)
-  &rarr run_LLPNanoAOD.sh
-    &rarr LLPNanoAOD_cfg.py
+run_LLPNanoAOD.sub (for condor)
+  run_LLPNanoAOD.sh
+    LLPNanoAOD_cfg.py
 ```
 
 You might need to go to your CMSSW_10_6_29 release and do `cmsenv` before running.
@@ -40,7 +40,7 @@ scram b -j
 
 ## Setup user parameters for LLPNanoAOD ##
 
-Create your own `userparams.py` config file in `UserParameters`, following the example in `UserParameters/example_userparams.py`.
+Create your own `userparams.json` config file in `UserParameters`, following the example in `UserParameters/example_userparams.json`.
 
 Settings that has to be set:
 * `output_base_path`: desired output path
@@ -51,7 +51,7 @@ Settings that has to be set:
 The dataset you want to use as input has to be given in your userparams in the nested dictionary `datasets`:
 
 ```
-datasets = {
+"datasets" = {
   dataset_type: {
     dataset_name: {
       "dataset": dataset path,
@@ -69,7 +69,7 @@ The variable `files` is not used but given for your own use to store the informa
 
 Example for TTToSemiLeptonic Summer20UL18 file on DAS:
 ```
-datasets = {
+"datasets" = {
   "backgrounds18": {
     "TTToSemiLeptonic": {
         "dataset": "/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2/MINIAODSIM",

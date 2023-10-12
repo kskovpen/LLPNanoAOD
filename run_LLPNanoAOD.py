@@ -78,11 +78,16 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '106X_upgrade2018_realistic_v16
 # DisplacedStandAloneMuon table
 process.dSAMuonsTable = cms.EDProducer("DSAMuonTableProducer",
     displacedMuons=cms.InputTag("displacedStandAloneMuons"),
-    primaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices")
+    primaryVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    beamSpot = cms.InputTag("offlineBeamSpot")
+)
+# BeamSpot table
+process.beamSpotTable = cms.EDProducer("BeamSpotTableProducer",
+    beamSpot = cms.InputTag("offlineBeamSpot")
 )
 
 # Path and EndPath definitions
-process.nanoAOD_step = cms.Path(process.nanoSequenceMC+process.dSAMuonsTable)
+process.nanoAOD_step = cms.Path(process.nanoSequenceMC+process.dSAMuonsTable+process.beamSpotTable)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.NANOAODSIMoutput_step = cms.EndPath(process.NANOAODSIMoutput)
 

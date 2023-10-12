@@ -65,7 +65,10 @@ public:
 
     std::vector<float> pt,ptErr,eta,etaErr,phi,phiErr,charge,dxy,dz,vx,vy,vz,chi2,ndof;
     std::vector<float> dxyPV,dzPV,dxyTrajPV,dxyTrajPVErr,dxyTrajPVAbs,dxyTrajPVAbsErr,dxyTrajPVSigned,dxyTrajPVSignedErr;
+    std::vector<float> ip3DPVAbs,ip3DPVAbsErr,ip3DPVSigned,ip3DPVSignedErr;
     std::vector<float> dxyBS,dzBS,dxyTrajBS,dxyTrajBSErr,dxyTrajBSAbs,dxyTrajBSAbsErr,dxyTrajBSSigned,dxyTrajBSSignedErr;
+    std::vector<float> ip3DBSAbs,ip3DBSAbsErr,ip3DBSSigned,ip3DBSSignedErr;
+
     for(auto muon : *displacedMuonHandle) {
       pt.push_back(muon.pt());
       ptErr.push_back(muon.ptError());
@@ -90,11 +93,16 @@ public:
       dxyTrajPV.push_back(trajectoryPV.perigeeParameters().transverseImpactParameter());
       dxyTrajPVErr.push_back(trajectoryPV.perigeeError().transverseImpactParameterError());
 
-      dxyTrajPVAbs.push_back(IPTools::absoluteImpactParameter3D(transientTrack, pv).second.value());
-      dxyTrajPVAbsErr.push_back(IPTools::absoluteImpactParameter3D(transientTrack, pv).second.error());
+      dxyTrajPVAbs.push_back(IPTools::absoluteTransverseImpactParameter(transientTrack, pv).second.value());
+      dxyTrajPVAbsErr.push_back(IPTools::absoluteTransverseImpactParameter(transientTrack, pv).second.error());
       GlobalVector muonRefTrackDir(muon.px(),muon.py(),muon.pz());
-      dxyTrajPVSigned.push_back(IPTools::signedImpactParameter3D(transientTrack, muonRefTrackDir, pv).second.value());
-      dxyTrajPVSignedErr.push_back(IPTools::signedImpactParameter3D(transientTrack, muonRefTrackDir, pv).second.error());
+      dxyTrajPVSigned.push_back(IPTools::signedTransverseImpactParameter(transientTrack, muonRefTrackDir, pv).second.value());
+      dxyTrajPVSignedErr.push_back(IPTools::signedTransverseImpactParameter(transientTrack, muonRefTrackDir, pv).second.error());
+
+      ip3DPVAbs.push_back(IPTools::absoluteImpactParameter3D(transientTrack, beamSpotVertex).second.value());
+      ip3DPVAbsErr.push_back(IPTools::absoluteImpactParameter3D(transientTrack, beamSpotVertex).second.error());
+      ip3DPVSigned.push_back(IPTools::signedImpactParameter3D(transientTrack, muonRefTrackDir, beamSpotVertex).second.value());
+      ip3DPVSignedErr.push_back(IPTools::signedImpactParameter3D(transientTrack, muonRefTrackDir, beamSpotVertex).second.error());  
 
       dxyBS.push_back(muon.dxy(bs));
       dzBS.push_back(muon.dz(bs));
@@ -103,10 +111,15 @@ public:
       dxyTrajBS.push_back(trajectoryBS.transverseImpactParameter().value());
       dxyTrajBSErr.push_back(trajectoryBS.transverseImpactParameter().error());
 
-      dxyTrajBSAbs.push_back(IPTools::absoluteImpactParameter3D(transientTrack, beamSpotVertex).second.value());
-      dxyTrajBSAbsErr.push_back(IPTools::absoluteImpactParameter3D(transientTrack, beamSpotVertex).second.error());
-      dxyTrajBSSigned.push_back(IPTools::signedImpactParameter3D(transientTrack, muonRefTrackDir, beamSpotVertex).second.value());
-      dxyTrajBSSignedErr.push_back(IPTools::signedImpactParameter3D(transientTrack, muonRefTrackDir, beamSpotVertex).second.error());      
+      dxyTrajBSAbs.push_back(IPTools::absoluteTransverseImpactParameter(transientTrack, beamSpotVertex).second.value());
+      dxyTrajBSAbsErr.push_back(IPTools::absoluteTransverseImpactParameter(transientTrack, beamSpotVertex).second.error());
+      dxyTrajBSSigned.push_back(IPTools::signedTransverseImpactParameter(transientTrack, muonRefTrackDir, beamSpotVertex).second.value());
+      dxyTrajBSSignedErr.push_back(IPTools::signedTransverseImpactParameter(transientTrack, muonRefTrackDir, beamSpotVertex).second.error());  
+
+      ip3DBSAbs.push_back(IPTools::absoluteImpactParameter3D(transientTrack, beamSpotVertex).second.value());
+      ip3DBSAbsErr.push_back(IPTools::absoluteImpactParameter3D(transientTrack, beamSpotVertex).second.error());
+      ip3DBSSigned.push_back(IPTools::signedImpactParameter3D(transientTrack, muonRefTrackDir, beamSpotVertex).second.value());
+      ip3DBSSignedErr.push_back(IPTools::signedImpactParameter3D(transientTrack, muonRefTrackDir, beamSpotVertex).second.error());      
 
     }
 
@@ -134,6 +147,8 @@ public:
     displacedMuonTab->addColumn<float>("dxyTrajPVAbsErr", dxyTrajPVAbsErr, "",  nanoaod::FlatTable::FloatColumn);
     displacedMuonTab->addColumn<float>("dxyTrajPVSigned", dxyTrajPVSigned, "",  nanoaod::FlatTable::FloatColumn);
     displacedMuonTab->addColumn<float>("dxyTrajPVSignedErr", dxyTrajPVSignedErr, "",  nanoaod::FlatTable::FloatColumn);
+    displacedMuonTab->addColumn<float>("ip3DPVSigned", ip3DPVSigned, "",  nanoaod::FlatTable::FloatColumn);
+    displacedMuonTab->addColumn<float>("ip3DPVSignedErr", ip3DPVSignedErr, "",  nanoaod::FlatTable::FloatColumn);
 
     displacedMuonTab->addColumn<float>("dxyBS", dxyBS, "",  nanoaod::FlatTable::FloatColumn);
     displacedMuonTab->addColumn<float>("dzBS", dzBS, "",  nanoaod::FlatTable::FloatColumn);
@@ -144,6 +159,8 @@ public:
     displacedMuonTab->addColumn<float>("dxyTrajBSAbsErr", dxyTrajBSAbsErr, "",  nanoaod::FlatTable::FloatColumn);
     displacedMuonTab->addColumn<float>("dxyTrajBSSigned", dxyTrajBSSigned, "",  nanoaod::FlatTable::FloatColumn);
     displacedMuonTab->addColumn<float>("dxyTrajBSSignedErr", dxyTrajBSSignedErr, "",  nanoaod::FlatTable::FloatColumn);
+    displacedMuonTab->addColumn<float>("ip3DBSSigned", ip3DBSSigned, "",  nanoaod::FlatTable::FloatColumn);
+    displacedMuonTab->addColumn<float>("ip3DBSSignedErr", ip3DBSSignedErr, "",  nanoaod::FlatTable::FloatColumn);
 
     iEvent.put(std::move(displacedMuonTab), "DSAMuon");
   }

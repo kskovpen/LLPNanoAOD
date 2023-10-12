@@ -3,7 +3,8 @@
 LLPNanoAOD is an extension of NanoAOD with parameters useful for analyses with Long-Lived Particles (LLP).
 
 LLPNanoAOD includes variables for:
-* DisplacedStandAloneMuons
+* DisplacedStandAloneMuons (DSAMuon)
+* BeamSpot (BS)
 * ... more to be added
 
 ## run_LLPNanoAOD ##
@@ -29,12 +30,19 @@ cmsenv
 
 ### Include LLP table producers: ###
 
-#### Include `DSAMuonTableProcuder.cc`: ####
+#### Include producers: ####
 
+Make sure to include the following plugins:
+* `DSAMuonTableProcuder.cc`
+* `BeamSpotTableProcuder.cc`
+And an updated build file:
+* `BuildFile.xml` in the same plugin directory
+
+In your setup CMSSW_10_6_29 source directory:
 ```
 cd CMSSW_10_6_29/src
 git-cms-addpkg PhysicsTools/NanoAOD
-cp {LLPNanoAOD base path}/PhysicsTools/NanoAOD/plugins/DSAMuonTableProcuder.cc PhysicsTools/NanoAOD/plugins/.
+cp {LLPNanoAOD base path}/PhysicsTools/NanoAOD/plugins/*.cc PhysicsTools/NanoAOD/plugins/.
 cp {LLPNanoAOD base path}/PhysicsTools/NanoAOD/plugins/BuildFile.xml PhysicsTools/NanoAOD/plugins/.
 scram b -j
 ```

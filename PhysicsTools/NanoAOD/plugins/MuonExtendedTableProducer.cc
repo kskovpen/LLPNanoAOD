@@ -14,40 +14,42 @@
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
+#include "DataFormats/PatCandidates/interface/Muon.h"
+
 #include <vector>
 #include <iostream>
 
-class DSAMuonTableProducer : public edm::stream::EDProducer<> {
+class MuonExtendedTableProducer : public edm::stream::EDProducer<> {
 protected:
-  const edm::InputTag displacedMuonLabel;
-  const edm::EDGetTokenT<std::vector<reco::Track>> displacedMuonTag_;
+  const edm::InputTag muonLabel;
+  const edm::EDGetTokenT<std::vector<pat::Muon>> muonTag_;
   const edm::InputTag primaryVertexLabel;
   const edm::EDGetTokenT<reco::VertexCollection> primaryVertexTag_;
   const edm::InputTag beamSpotLabel;
   const edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
   
 public:
-  DSAMuonTableProducer(edm::ParameterSet const& params)
+  MuonExtendedTableProducer(edm::ParameterSet const& params)
     :
-    displacedMuonLabel(params.getParameter<edm::InputTag>("displacedMuons")),
-    displacedMuonTag_(consumes<std::vector<reco::Track>>(displacedMuonLabel)),
+    muonLabel(params.getParameter<edm::InputTag>("muons")),
+    muonTag_(consumes<std::vector<pat::Muon>>(muonLabel)),
     primaryVertexLabel(params.getParameter<edm::InputTag>("primaryVertex")),
     primaryVertexTag_(consumes<reco::VertexCollection>(primaryVertexLabel)),
     beamSpotLabel(params.getParameter<edm::InputTag>("beamSpot")),
     beamSpotTag_(consumes<reco::BeamSpot>(beamSpotLabel))
     {
-    produces<nanoaod::FlatTable>("DSAMuon");
+    produces<nanoaod::FlatTable>("MuonExtended");
     
   }
 
-  ~DSAMuonTableProducer() override {}
+  ~MuonExtendedTableProducer() override {}
 
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
     
 
-    edm::Handle<std::vector<reco::Track>> displacedMuonHandle;
-    iEvent.getByToken(displacedMuonTag_, displacedMuonHandle);
-    auto displacedMuonTab = std::make_unique<nanoaod::FlatTable>(displacedMuonHandle->size(), "DSAMuon", false, false);
+    edm::Handle<std::vector<pat::Muon>> muonHandle;
+    iEvent.getByToken(muonTag_, muonHandle);
+    auto muonTab = std::make_unique<nanoaod::FlatTable>(muonHandle->size(), "MuonExtended", false, false);
 
     edm::Handle<reco::VertexCollection> primaryVertexHandle;
     iEvent.getByToken(primaryVertexTag_, primaryVertexHandle);
@@ -63,32 +65,20 @@ public:
     edm::ESHandle<TransientTrackBuilder> builder;
     iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
 
-    std::vector<float> pt,ptErr,eta,etaErr,phi,phiErr,charge,dxy,dz,vx,vy,vz,chi2,ndof;
     std::vector<float> dxyPV,dzPV,dxyPVTraj,dxyPVTrajErr,dxyPVAbs,dxyPVAbsErr,dxyPVSigned,dxyPVSignedErr;
     std::vector<float> ip3DPVAbs,ip3DPVAbsErr,ip3DPVSigned,ip3DPVSignedErr;
     std::vector<float> dxyBS,dzBS,dxyBSTraj,dxyBSTrajErr,dxyBSAbs,dxyBSAbsErr,dxyBSSigned,dxyBSSignedErr;
     std::vector<float> ip3DBSAbs,ip3DBSAbsErr,ip3DBSSigned,ip3DBSSignedErr;
+    std::vector<float> dxyBS_test;
 
-    for(auto muon : *displacedMuonHandle) {
-      pt.push_back(muon.pt());
-      ptErr.push_back(muon.ptError());
-      eta.push_back(muon.eta());
-      etaErr.push_back(muon.etaError());
-      phi.push_back(muon.phi());
-      phiErr.push_back(muon.phiError());
-      charge.push_back(muon.charge());
-      dxy.push_back(muon.dxy());
-      dz.push_back(muon.dz());
-      vx.push_back(muon.vx());
-      vy.push_back(muon.vy());
-      vz.push_back(muon.vz());
-      chi2.push_back(muon.chi2());
-      ndof.push_back(muon.ndof());
+    for(auto muon : *muonHandle) {
 
-      dxyPV.push_back(muon.dxy(pv.position()));
-      dzPV.push_back(muon.dz(pv.position()));
+      const auto& track = muon.bestTrack();
+      reco::TransientTrack transientTrack = builder->build(track);
 
-      reco::TransientTrack transientTrack = builder->build(muon);
+      dxyPV.push_back(track->dxy(pv.position()));
+      dzPV.push_back(track->dz(pv.position()));
+
       TrajectoryStateClosestToPoint trajectoryPV = transientTrack.trajectoryStateClosestToPoint(primaryVertex);
       dxyPVTraj.push_back(trajectoryPV.perigeeParameters().transverseImpactParameter());
       dxyPVTrajErr.push_back(trajectoryPV.perigeeError().transverseImpactParameterError());
@@ -104,8 +94,10 @@ public:
       ip3DPVSigned.push_back(IPTools::signedImpactParameter3D(transientTrack, muonRefTrackDir, beamSpotVertex).second.value());
       ip3DPVSignedErr.push_back(IPTools::signedImpactParameter3D(transientTrack, muonRefTrackDir, beamSpotVertex).second.error());  
 
-      dxyBS.push_back(muon.dxy(bs));
-      dzBS.push_back(muon.dz(bs));
+      dxyBS_test.push_back(muon.dB(pat::Muon::BS2D));
+
+      dxyBS.push_back(track->dxy(bs));
+      dzBS.push_back(track->dz(bs));
 
       TrajectoryStateClosestToBeamLine trajectoryBS = transientTrack.stateAtBeamLine();
       dxyBSTraj.push_back(trajectoryBS.transverseImpactParameter().value());
@@ -123,48 +115,35 @@ public:
 
     }
 
-    displacedMuonTab->addColumn<float>("pt", pt, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("ptErr", ptErr, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("eta", eta, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("etaErr", etaErr, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("phi", phi, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("phiErr", phiErr, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("charge", charge, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("dxy", dxy, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("dz", dz, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("vx", vx, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("vy", vy, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("vz", vz, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("chi2", chi2, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("ndof", ndof, "",  nanoaod::FlatTable::FloatColumn);
+    muonTab->addColumn<float>("dxyPV", dxyPV, "",  nanoaod::FlatTable::FloatColumn);
+    muonTab->addColumn<float>("dzPV", dzPV, "",  nanoaod::FlatTable::FloatColumn);
 
-    displacedMuonTab->addColumn<float>("dxyPV", dxyPV, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("dzPV", dzPV, "",  nanoaod::FlatTable::FloatColumn);
+    muonTab->addColumn<float>("dxyPVTraj", dxyPVTraj, "",  nanoaod::FlatTable::FloatColumn);
+    muonTab->addColumn<float>("dxyPVTrajErr", dxyPVTrajErr, "",  nanoaod::FlatTable::FloatColumn);
+    muonTab->addColumn<float>("dxyPVAbs", dxyPVAbs, "",  nanoaod::FlatTable::FloatColumn);
+    muonTab->addColumn<float>("dxyPVAbsErr", dxyPVAbsErr, "",  nanoaod::FlatTable::FloatColumn);
+    muonTab->addColumn<float>("dxyPVSigned", dxyPVSigned, "",  nanoaod::FlatTable::FloatColumn);
+    muonTab->addColumn<float>("dxyPVSignedErr", dxyPVSignedErr, "",  nanoaod::FlatTable::FloatColumn);
+    muonTab->addColumn<float>("ip3DPVSigned", ip3DPVSigned, "",  nanoaod::FlatTable::FloatColumn);
+    muonTab->addColumn<float>("ip3DPVSignedErr", ip3DPVSignedErr, "",  nanoaod::FlatTable::FloatColumn);
 
-    displacedMuonTab->addColumn<float>("dxyPVTraj", dxyPVTraj, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("dxyPVTrajErr", dxyPVTrajErr, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("dxyPVAbs", dxyPVAbs, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("dxyPVAbsErr", dxyPVAbsErr, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("dxyPVSigned", dxyPVSigned, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("dxyPVSignedErr", dxyPVSignedErr, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("ip3DPVSigned", ip3DPVSigned, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("ip3DPVSignedErr", ip3DPVSignedErr, "",  nanoaod::FlatTable::FloatColumn);
+    muonTab->addColumn<float>("dxyBS_test", dxyBS_test, "",  nanoaod::FlatTable::FloatColumn);
 
-    displacedMuonTab->addColumn<float>("dxyBS", dxyBS, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("dzBS", dzBS, "",  nanoaod::FlatTable::FloatColumn);
+    muonTab->addColumn<float>("dxyBS", dxyBS, "",  nanoaod::FlatTable::FloatColumn);
+    muonTab->addColumn<float>("dzBS", dzBS, "",  nanoaod::FlatTable::FloatColumn);
 
-    displacedMuonTab->addColumn<float>("dxyBSTraj", dxyBSTraj, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("dxyBSTrajErr", dxyBSTrajErr, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("dxyBSAbs", dxyBSAbs, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("dxyBSAbsErr", dxyBSAbsErr, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("dxyBSSigned", dxyBSSigned, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("dxyBSSignedErr", dxyBSSignedErr, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("ip3DBSSigned", ip3DBSSigned, "",  nanoaod::FlatTable::FloatColumn);
-    displacedMuonTab->addColumn<float>("ip3DBSSignedErr", ip3DBSSignedErr, "",  nanoaod::FlatTable::FloatColumn);
+    muonTab->addColumn<float>("dxyBSTraj", dxyBSTraj, "",  nanoaod::FlatTable::FloatColumn);
+    muonTab->addColumn<float>("dxyBSTrajErr", dxyBSTrajErr, "",  nanoaod::FlatTable::FloatColumn);
+    muonTab->addColumn<float>("dxyBSAbs", dxyBSAbs, "",  nanoaod::FlatTable::FloatColumn);
+    muonTab->addColumn<float>("dxyBSAbsErr", dxyBSAbsErr, "",  nanoaod::FlatTable::FloatColumn);
+    muonTab->addColumn<float>("dxyBSSigned", dxyBSSigned, "",  nanoaod::FlatTable::FloatColumn);
+    muonTab->addColumn<float>("dxyBSSignedErr", dxyBSSignedErr, "",  nanoaod::FlatTable::FloatColumn);
+    muonTab->addColumn<float>("ip3DBSSigned", ip3DBSSigned, "",  nanoaod::FlatTable::FloatColumn);
+    muonTab->addColumn<float>("ip3DBSSignedErr", ip3DBSSignedErr, "",  nanoaod::FlatTable::FloatColumn);
 
-    iEvent.put(std::move(displacedMuonTab), "DSAMuon");
+    iEvent.put(std::move(muonTab), "MuonExtended");
   }
 
 };
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(DSAMuonTableProducer);
+DEFINE_FWK_MODULE(MuonExtendedTableProducer);

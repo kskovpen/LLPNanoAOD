@@ -85,9 +85,27 @@ process.dSAMuonsTable = cms.EDProducer("DSAMuonTableProducer",
 process.beamSpotTable = cms.EDProducer("BeamSpotTableProducer",
     beamSpot = cms.InputTag("offlineBeamSpot")
 )
+# Extended muon table
+process.muonExtendedTable = cms.EDProducer("MuonExtendedTableProducer",
+    muons=cms.InputTag("linkedObjects","muons"),
+    primaryVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    beamSpot = cms.InputTag("offlineBeamSpot")
+)
+# Extended electron table
+process.electronExtendedTable = cms.EDProducer("ElectronExtendedTableProducer",
+    electrons=cms.InputTag("linkedObjects","electrons"),
+    primaryVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    beamSpot = cms.InputTag("offlineBeamSpot")
+)
+# Extended isoTrack table
+process.isoTrackExtendedTable = cms.EDProducer("IsoTrackExtendedTableProducer",
+    isoTracks=cms.InputTag("finalIsolatedTracks"),
+    primaryVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    beamSpot = cms.InputTag("offlineBeamSpot")
+)
 
 # Path and EndPath definitions
-process.nanoAOD_step = cms.Path(process.nanoSequenceMC+process.dSAMuonsTable+process.beamSpotTable)
+process.nanoAOD_step = cms.Path(process.nanoSequenceMC+process.dSAMuonsTable+process.beamSpotTable+process.muonExtendedTable+process.electronExtendedTable+process.isoTrackExtendedTable)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.NANOAODSIMoutput_step = cms.EndPath(process.NANOAODSIMoutput)
 

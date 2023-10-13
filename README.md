@@ -5,7 +5,9 @@ LLPNanoAOD is an extension of NanoAOD with parameters useful for analyses with L
 LLPNanoAOD includes variables for:
 * DisplacedStandAloneMuons (DSAMuon)
 * BeamSpot (BS)
-* ... more to be added
+* Extended Muon viarables (MuonExtended)
+* Extended Electron viarables (ElectronExtended)
+* Extended IsoTrack viarables (IsoTrackExtended)
 
 ## run_LLPNanoAOD ##
 
@@ -35,6 +37,9 @@ cmsenv
 Make sure to include the following plugins:
 * `DSAMuonTableProcuder.cc`
 * `BeamSpotTableProcuder.cc`
+* `MuonExtendedTableProcuder.cc`
+* `ElectronExtendedTableProcuder.cc`
+* `IsoTrackExtendedTableProcuder.cc`
 And an updated build file:
 * `BuildFile.xml` in the same plugin directory
 

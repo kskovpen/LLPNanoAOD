@@ -1,8 +1,11 @@
 {
     "output_base_path": "/base/path/to/dataset/",
+    "home_path": "/path/to/local/home/directory",
     "CMSSW_base_path": "/path/to/local/CMSSW/directory",
     "LLP_working_path": "/path/to/LLPNanoAOD",
-
+    "dasgoclient_path": "/cvmfs/cms.cern.ch/common/dasgoclient",
+    "proxy_path": "/path/to/x509up/proxy",
+    
     "datasets": {
         
         "type for DAS": {

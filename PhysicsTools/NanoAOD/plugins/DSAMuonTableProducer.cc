@@ -14,6 +14,9 @@
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+
 #include <vector>
 #include <iostream>
 
@@ -64,6 +67,8 @@ public:
     iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
 
     std::vector<float> pt,ptErr,eta,etaErr,phi,phiErr,charge,dxy,dz,vx,vy,vz,chi2,ndof;
+    std::vector<float> trkNumPlanes, trkNumHits, trkNumDTHits, trkNumCSCHits, normChi2;
+    // std::vector<float> outerEta, outerPhi;
     std::vector<float> dxyPV,dzPV,dxyPVTraj,dxyPVTrajErr,dxyPVAbs,dxyPVAbsErr,dxyPVSigned,dxyPVSignedErr;
     std::vector<float> ip3DPVAbs,ip3DPVAbsErr,ip3DPVSigned,ip3DPVSignedErr;
     std::vector<float> dxyBS,dzBS,dxyBSTraj,dxyBSTrajErr,dxyBSAbs,dxyBSAbsErr,dxyBSSigned,dxyBSSignedErr;
@@ -85,6 +90,15 @@ public:
       chi2.push_back(muon.chi2());
       ndof.push_back(muon.ndof());
 
+      trkNumPlanes.push_back(muon.hitPattern().muonStationsWithValidHits());
+      trkNumHits.push_back(muon.hitPattern().numberOfValidMuonHits());
+      trkNumDTHits.push_back(muon.hitPattern().numberOfValidMuonDTHits());
+      trkNumCSCHits.push_back(muon.hitPattern().numberOfValidMuonCSCHits());
+      normChi2.push_back(muon.normalizedChi2());
+
+      // outerEta.push_back(muon.outerEta());
+      // outerPhi.push_back(muon.outerPhi());
+
       dxyPV.push_back(muon.dxy(pv.position()));
       dzPV.push_back(muon.dz(pv.position()));
 
@@ -99,10 +113,10 @@ public:
       dxyPVSigned.push_back(IPTools::signedTransverseImpactParameter(transientTrack, muonRefTrackDir, pv).second.value());
       dxyPVSignedErr.push_back(IPTools::signedTransverseImpactParameter(transientTrack, muonRefTrackDir, pv).second.error());
 
-      ip3DPVAbs.push_back(IPTools::absoluteImpactParameter3D(transientTrack, beamSpotVertex).second.value());
-      ip3DPVAbsErr.push_back(IPTools::absoluteImpactParameter3D(transientTrack, beamSpotVertex).second.error());
-      ip3DPVSigned.push_back(IPTools::signedImpactParameter3D(transientTrack, muonRefTrackDir, beamSpotVertex).second.value());
-      ip3DPVSignedErr.push_back(IPTools::signedImpactParameter3D(transientTrack, muonRefTrackDir, beamSpotVertex).second.error());  
+      ip3DPVAbs.push_back(IPTools::absoluteImpactParameter3D(transientTrack, pv).second.value());
+      ip3DPVAbsErr.push_back(IPTools::absoluteImpactParameter3D(transientTrack, pv).second.error());
+      ip3DPVSigned.push_back(IPTools::signedImpactParameter3D(transientTrack, muonRefTrackDir, pv).second.value());
+      ip3DPVSignedErr.push_back(IPTools::signedImpactParameter3D(transientTrack, muonRefTrackDir, pv).second.error());  
 
       dxyBS.push_back(muon.dxy(bs));
       dzBS.push_back(muon.dz(bs));
@@ -137,6 +151,16 @@ public:
     displacedMuonTab->addColumn<float>("vz", vz, "",  nanoaod::FlatTable::FloatColumn);
     displacedMuonTab->addColumn<float>("chi2", chi2, "",  nanoaod::FlatTable::FloatColumn);
     displacedMuonTab->addColumn<float>("ndof", ndof, "",  nanoaod::FlatTable::FloatColumn);
+
+    displacedMuonTab->addColumn<float>("trkNumPlanes", trkNumPlanes, "",  nanoaod::FlatTable::FloatColumn);
+    displacedMuonTab->addColumn<float>("trkNumHits", trkNumHits, "",  nanoaod::FlatTable::FloatColumn);
+    displacedMuonTab->addColumn<float>("trkNumDTHits", trkNumDTHits, "",  nanoaod::FlatTable::FloatColumn);
+    displacedMuonTab->addColumn<float>("trkNumCSCHits", trkNumCSCHits, "",  nanoaod::FlatTable::FloatColumn);
+
+    displacedMuonTab->addColumn<float>("normChi2", normChi2, "",  nanoaod::FlatTable::FloatColumn);
+
+    // displacedMuonTab->addColumn<float>("outerEta", outerEta, "",  nanoaod::FlatTable::FloatColumn);
+    // displacedMuonTab->addColumn<float>("outerPhi", outerPhi, "",  nanoaod::FlatTable::FloatColumn);
 
     displacedMuonTab->addColumn<float>("dxyPV", dxyPV, "",  nanoaod::FlatTable::FloatColumn);
     displacedMuonTab->addColumn<float>("dzPV", dzPV, "",  nanoaod::FlatTable::FloatColumn);

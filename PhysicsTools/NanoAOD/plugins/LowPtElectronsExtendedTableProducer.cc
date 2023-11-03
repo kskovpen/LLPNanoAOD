@@ -19,7 +19,7 @@
 #include <vector>
 #include <iostream>
 
-class ElectronExtendedTableProducer : public edm::stream::EDProducer<> {
+class LowPtElectronExtendedTableProducer : public edm::stream::EDProducer<> {
 protected:
   const edm::InputTag electronLabel;
   const edm::EDGetTokenT<std::vector<pat::Electron>> electronTag_;
@@ -29,27 +29,27 @@ protected:
   const edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
   
 public:
-  ElectronExtendedTableProducer(edm::ParameterSet const& params)
+  LowPtElectronExtendedTableProducer(edm::ParameterSet const& params)
     :
-    electronLabel(params.getParameter<edm::InputTag>("electrons")),
+    electronLabel(params.getParameter<edm::InputTag>("lowPtElectrons")),
     electronTag_(consumes<std::vector<pat::Electron>>(electronLabel)),
     primaryVertexLabel(params.getParameter<edm::InputTag>("primaryVertex")),
     primaryVertexTag_(consumes<reco::VertexCollection>(primaryVertexLabel)),
     beamSpotLabel(params.getParameter<edm::InputTag>("beamSpot")),
     beamSpotTag_(consumes<reco::BeamSpot>(beamSpotLabel))
     {
-    produces<nanoaod::FlatTable>("ElectronExtended");
+    produces<nanoaod::FlatTable>("LowPtElectronExtended");
     
   }
 
-  ~ElectronExtendedTableProducer() override {}
+  ~LowPtElectronExtendedTableProducer() override {}
 
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
     
 
     edm::Handle<std::vector<pat::Electron>> electronHandle;
     iEvent.getByToken(electronTag_, electronHandle);
-    auto electronTab = std::make_unique<nanoaod::FlatTable>(electronHandle->size(), "ElectronExtended", false, false);
+    auto electronTab = std::make_unique<nanoaod::FlatTable>(electronHandle->size(), "LowPtElectronExtended", false, false);
 
     edm::Handle<reco::VertexCollection> primaryVertexHandle;
     iEvent.getByToken(primaryVertexTag_, primaryVertexHandle);
@@ -170,9 +170,9 @@ public:
     electronTab->addColumn<float>("ip3DBSSigned", ip3DBSSigned, "",  nanoaod::FlatTable::FloatColumn);
     electronTab->addColumn<float>("ip3DBSSignedErr", ip3DBSSignedErr, "",  nanoaod::FlatTable::FloatColumn);
 
-    iEvent.put(std::move(electronTab), "ElectronExtended");
+    iEvent.put(std::move(electronTab), "LowPtElectronExtended");
   }
 
 };
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(ElectronExtendedTableProducer);
+DEFINE_FWK_MODULE(LowPtElectronExtendedTableProducer);

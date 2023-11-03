@@ -10,4 +10,4 @@ Notification=never
 transfer_output_files = ""
 +JobFlavour           = "longlunch"
 
-queue 1
+queue 10

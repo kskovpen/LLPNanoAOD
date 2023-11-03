@@ -16,7 +16,7 @@ output_file = sys.argv[3]
 nevents = int(sys.argv[4])
 if nevents == 0:
     nevents=-1
-print('Running LLPNanoAOD_cfg.py')
+print('Running run_LLPNanoAOD.py')
 print('-- Input MiniAOD file: '+input_file)
 print('-- Output NanoAOD file: '+output_file)
 print('-- Running on '+str(nevents)+' number of events')
@@ -97,15 +97,25 @@ process.electronExtendedTable = cms.EDProducer("ElectronExtendedTableProducer",
     primaryVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
     beamSpot = cms.InputTag("offlineBeamSpot")
 )
-# Extended isoTrack table
-process.isoTrackExtendedTable = cms.EDProducer("IsoTrackExtendedTableProducer",
-    isoTracks=cms.InputTag("finalIsolatedTracks"),
+# Extended low pt electron table
+process.lowPtElectronExtendedTable = cms.EDProducer("LowPtElectronExtendedTableProducer",
+    lowPtElectrons=cms.InputTag("linkedObjects","lowPtElectrons"),
     primaryVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
     beamSpot = cms.InputTag("offlineBeamSpot")
 )
+# Extended isoTrack table
+# process.isoTrackExtendedTable = cms.EDProducer("IsoTrackExtendedTableProducer",
+#     isoTracks=cms.InputTag("finalIsolatedTracks"),
+#     primaryVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
+#     beamSpot = cms.InputTag("offlineBeamSpot")
+# )
+# Extended genparticles table
+process.genparticlesExtendedTable = cms.EDProducer("GenParticlesExtendedTableProducer",
+    genparticles=cms.InputTag("finalGenParticles")
+)
 
 # Path and EndPath definitions
-process.nanoAOD_step = cms.Path(process.nanoSequenceMC+process.dSAMuonsTable+process.beamSpotTable+process.muonExtendedTable+process.electronExtendedTable+process.isoTrackExtendedTable)
+process.nanoAOD_step = cms.Path(process.nanoSequenceMC+process.dSAMuonsTable+process.beamSpotTable+process.electronExtendedTable)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.NANOAODSIMoutput_step = cms.EndPath(process.NANOAODSIMoutput)
 
@@ -126,6 +136,9 @@ from PhysicsTools.NanoAOD.nano_cff import nanoAOD_customizeMC
 
 #call to customisation function nanoAOD_customizeMC imported from PhysicsTools.NanoAOD.nano_cff
 process = nanoAOD_customizeMC(process)
+
+from PhysicsTools.NanoAOD.llpnano_cff import LLPNanoAOD_customize
+process = LLPNanoAOD_customize(process)
 
 # End of customisation functions
 

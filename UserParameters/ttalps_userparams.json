@@ -1,7 +1,10 @@
 {
     "output_base_path": "/nfs/dust/cms/user/lrygaard/ttalps_cms",
+    "home_path": "/afs/desy.de/user/l/lrygaard",
     "CMSSW_base_path": "/afs/desy.de/user/l/lrygaard/TTALP",
     "LLP_working_path": "/afs/desy.de/user/l/lrygaard/TTALP/LLPNanoAOD",
+    "dasgoclient_path": "/cvmfs/cms.cern.ch/common/dasgoclient",
+    "proxy_path": "/afs/desy.de/user/l/lrygaard/x509up_u53185",
 
     "datasets": {
         "backgrounds17": {
@@ -79,10 +82,71 @@
             }
         },
         "signal": {
-            "ttalps_mAlp-0p35GeV_ctau-1e3mm_nEvents-10000": {
-                "dataset": "/nfs/dust/cms/user/lrygaard/ttalps_cms/signal_MiniAODs/ttalps_mAlp-0p35GeV_ctau-1e3mm_nEvents-10000",
+            "tta_mAlp-0p35GeV_ctau-1e3mm_nEvents-1000": {
+                "dataset": "/nfs/dust/cms/user/lrygaard/ttalps_cms/signal_MiniAODs/tta_mAlp-0p35GeV_ctau-1e3mm_nEvents-1000",
                 "input_format": "local",
-                "files": 0
+                "files": 100
+            },
+            "tta_mAlp-0p35GeV_ctau-1e5mm_nEvents-1000": {
+                "dataset": "/nfs/dust/cms/user/lrygaard/ttalps_cms/signal_MiniAODs/tta_mAlp-0p35GeV_ctau-1e5mm_nEvents-1000",
+                "input_format": "local",
+                "files": 100
+            },
+            "tta_mAlp-0p35GeV_ctau-1e7mm_nEvents-1000": {
+                "dataset": "/nfs/dust/cms/user/lrygaard/ttalps_cms/signal_MiniAODs/tta_mAlp-0p35GeV_ctau-1e7mm_nEvents-1000",
+                "input_format": "local",
+                "files": 100
+            }
+        },
+        "ALPToElectrons": {
+            "tta_mAlp-0p35GeV_ctau-1e3mm_nEvents-1000": {
+                "dataset": "/nfs/dust/cms/user/lrygaard/ttalps_cms/signal_MiniAODs/ALPToElectrons/tta_mAlp-0p35GeV_ctau-1e3mm_nEvents-1000",
+                "input_format": "local",
+                "files": 100
+            },
+            "tta_mAlp-0p35GeV_ctau-1e5mm_nEvents-1000": {
+                "dataset": "/nfs/dust/cms/user/lrygaard/ttalps_cms/signal_MiniAODs/ALPToElectrons/tta_mAlp-0p35GeV_ctau-1e5mm_nEvents-1000",
+                "input_format": "local",
+                "files": 100
+            }
+        },
+        "ALPToPions": {
+            "tta_mAlp-8p0GeV_ctau-1e3mm_nEvents-1000": {
+                "dataset": "/nfs/dust/cms/user/lrygaard/ttalps_cms/signal_MiniAODs/ALPToPions/tta_mAlp-8p0GeV_ctau-1e3mm_nEvents-1000",
+                "input_format": "local",
+                "files": 100
+            },
+            "tta_mAlp-8p0GeV_ctau-1e5mm_nEvents-1000": {
+                "dataset": "/nfs/dust/cms/user/lrygaard/ttalps_cms/signal_MiniAODs/ALPToPions/tta_mAlp-8p0GeV_ctau-1e5mm_nEvents-1000",
+                "input_format": "local",
+                "files": 100
+            }
+        },
+        "test": {
+            "tta_mAlp-0p35GeV_ctau-10mm_nEvents-10": {
+                "dataset": "/nfs/dust/cms/user/lrygaard/ttalps_cms/signal_MiniAODs/tests/tta_mAlp-0p35GeV_ctau-10mm_nEvents-10",
+                "input_format": "local",
+                "files": 1
+            },
+            "tta_mAlp-0p35GeV_ctau-1e5mm_nEvents-10": {
+                "dataset": "/nfs/dust/cms/user/lrygaard/ttalps_cms/signal_MiniAODs/tta_mAlp-0p35GeV_ctau-1e5mm_nEvents-10",
+                "input_format": "local",
+                "files": 1
+            },
+            "tta_mAlp-0p35GeV_ctau-1e3mm_nEvents-10": {
+                "dataset": "/nfs/dust/cms/user/lrygaard/ttalps_cms/signal_MiniAODs/single_files/tta_mAlp-0p35GeV_ctau-1e3mm_nEvents-10",
+                "input_format": "local",
+                "files": 1
+            },
+            "tta_mAlp-0p35GeV_ctau-1e5mm_nEvents-100": {
+                "dataset": "/nfs/dust/cms/user/lrygaard/ttalps_cms/signal_MiniAODs/single_files/tta_mAlp-0p35GeV_ctau-1e5mm_nEvents-100",
+                "input_format": "local",
+                "files": 1
+            },
+            "tta_mAlp-0p35GeV_ctau-1e7mm_nEvents-100": {
+                "dataset": "/nfs/dust/cms/user/lrygaard/ttalps_cms/signal_MiniAODs/single_files/tta_mAlp-0p35GeV_ctau-1e7mm_nEvents-100",
+                "input_format": "local",
+                "files": 1
             }
         }
     }

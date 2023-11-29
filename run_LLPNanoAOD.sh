@@ -11,7 +11,8 @@ export CMSSW_GIT_REFERENCE=/cvmfs/cms.cern.ch/cmssw.git
 process_id=$(( $1+0 ))
 dataset_type=$2
 dataset_name=$3
-n_events=$4
+files_per_job=$4
+n_events=$5
 
 ### PATHS ###
 
@@ -52,38 +53,87 @@ echo
 
 ### INPUT FILENAME ###
 
+filename_list=""
+
 if [ "$input_format" = "das" ]; then
-  echo $dasgoclient_path -query='dataset=$dataset'
-  $dasgoclient_path -query='dataset=$dataset"'
-  echo filename="$($dasgoclient_path --query="file dataset=$dataset" -limit=0 | sed -n "$((process_id+2))p")"
-  filename="$($dasgoclient_path --query="file dataset=$dataset" -limit=0 | sed -n "$((process_id+2))p")"
-  if [ -z "$filename" ]; then
-    echo "Error: filename from dataset $dataset_name in $dataset_type could not be found - exiting."
-    exit 1
-  fi
-  input_path="root://cms-xrd-global.cern.ch//$filename"
-  output_path="$output_base_path/$(basename "$filename")"
+
+  total_files="$($dasgoclient_path --query="file dataset=$dataset" -limit=0 | wc -l)"
+
+  for ((i=0; i<$files_per_job; i++)); do
+
+    file_number=$((process_id*files_per_job+i+1))
+
+    # Check that the file number doesn't exceed total number of files
+    if [ $file_number -le $total_files ]; then 
+
+      # Reading filename 
+      filename="$($dasgoclient_path --query="file dataset=$dataset" -limit=0 | sed -n "${file_number}p")"
+      # Check if filename was found for the first file
+      if [ $i -eq 0 ]; then
+        if [ -z "$filename" ]; then
+          echo "Error: filename from dataset $dataset_name in $dataset_type could not be found - exiting."
+          exit 1
+        fi
+      fi
+      # Adding redirector for DAS root files
+      input_path="root://cms-xrd-global.cern.ch/$filename"
+      # Adding path to list of filenames, separated by a comma
+      filename_list+="$input_path,"
+
+    fi
+  done
+
+  # Setting output name
+  output_name="${dataset_name}_part-${process_id}"
+  output_path="$output_base_path/$output_name"
 
 elif [ "$input_format" = "local" ]; then
-  filename=$(ls "$dataset" | sed -n "$((process_id+1))p")
-  if [ -z "$filename" ]; then
-    echo "Error: filename from dataset $dataset_name in $dataset_type could not be found - exiting."
-    exit 1
-  fi
-  input_path="file:$dataset/$filename"
-  output_path="$output_base_path/$(basename "$input_path")"
+
+  total_files=$(ls "$dataset" | wc -l)
+
+  for ((i=0; i<$files_per_job; i++)); do
+
+    file_number=$((process_id*files_per_job+i+1))
+
+    # Check that the file number doesn't exceed total number of files
+    if [ $file_number -le $total_files ]; then
+
+      # Reading filename 
+      filename=$(ls "$dataset" | sed -n "${file_number}p")
+      # Check if filename was found for the first file
+      if [ $i -eq 0 ]; then
+        if [ -z "$filename" ]; then
+          echo "Error: filename from dataset $dataset_name in $dataset_type could not be found - exiting."
+          exit 1
+        fi
+      fi
+      # Adding redirector for local root file
+      input_path="file:$dataset/$filename"
+      # Adding path to list of filenames, separated by a comma
+      filename_list+="$input_path,"
+    fi
+  done
+
+  # Setting output path
+  output_name="${dataset_name}_part-${process_id}"
+  output_path="$output_base_path/$output_name"
 
 else
   echo "Error: input_format $input_format not found - exiting."
   exit 1
 fi
 
+# Remove the trailing comma
+filename_list=${filename_list%,}
+
+echo -- "Running over input files: $filename_list"
+
 ### CMSSW ENVIRONMENT ###
 cd "${CMSSW_base_path}/CMSSW_10_6_29/src"
 eval `scramv1 runtime -sh`
 
 ### RUN LLPNanoAOD ###
-cmsRun "${LLP_working_path}/run_LLPNanoAOD.py" "$input_path" "$output_path" "$n_events"
+cmsRun "${LLP_working_path}/run_LLPNanoAOD.py" "inputFiles=$filename_list" "outputFile=$output_path" "nEvents=$n_events"
 
 echo "LLPNanoAOD file saved in: $output_path"
 echo "Done"

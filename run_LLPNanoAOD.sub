@@ -5,9 +5,10 @@ error = error/run_$(ClusterId)-$(Process).error
 log = log/run_$(ClusterId)-$(Process).log
 output = output/run_$(ClusterId)-$(Process).out
 executable = run_LLPNanoAOD.sh           
-arguments =  $(Process)  backgrounds18  TTToSemiLeptonic  0
+arguments =  $(Process)  backgrounds18  TTToSemiLeptonic_2  10  0
++RequestRuntime = 259200
 Notification=never
 transfer_output_files = ""
-+JobFlavour           = "longlunch"
++JobFlavour = "testmatch"
 
-queue 10
+queue 1010

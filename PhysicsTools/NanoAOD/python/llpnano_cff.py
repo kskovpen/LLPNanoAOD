@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.muons_cff import *
 from PhysicsTools.NanoAOD.genparticles_cff import *
+from PhysicsTools.NanoAOD.electrons_cff import *
 from PhysicsTools.NanoAOD.lowPtElectrons_cff import *
 
 def LLPNanoAOD_customize(process):
@@ -18,9 +19,6 @@ def LLPNanoAOD_customize(process):
   myMuonTable.variables.trkNumCSCHits = Var("bestTrack().hitPattern().numberOfValidMuonCSCHits()", float)
   myMuonTable.variables.normChi2 = Var("bestTrack().normalizedChi2()", float)
 
-  # myMuonTable.variables.outerEta = Var("bestTrack().outerEta()", float)
-  # myMuonTable.variables.outerPhi = Var("bestTrack().outerPhi()", float)
-
   process.globalReplace("muonTable", myMuonTable)
 
   myGenParticleTable = genParticleTable.clone()
@@ -31,19 +29,5 @@ def LLPNanoAOD_customize(process):
   myGenParticleTable.variables.R = Var("vertex.R", float)
 
   process.globalReplace("genParticleTable", myGenParticleTable)
-
-  myLowPtElectronTable = lowPtElectronTable.clone()
-  myLowPtElectronTable.variables.vx = Var("bestTrack().vx()", float)
-  myLowPtElectronTable.variables.vy = Var("bestTrack().vy()", float)
-  myLowPtElectronTable.variables.vz = Var("bestTrack().vz()", float)
-
-  myLowPtElectronTable.variables.normChi2 = Var("bestTrack().normalizedChi2()", float)
-
-  # myLowPtElectronTable.variables.outerEta = Var("bestTrack().outerEta()", float)
-  # myLowPtElectronTable.variables.outerPhi = Var("bestTrack().outerPhi()", float)
-
-  process.globalReplace("lowPtElectronTable", myLowPtElectronTable)
-
-
 
   return process

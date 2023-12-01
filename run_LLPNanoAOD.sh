@@ -16,7 +16,7 @@ n_events=$5
 
 ### PATHS ###
 
-userparams_input="UserParameters/ttalps_userparams.json"
+userparams_input="UserParameters/example_userparams.json"
 
 home_path=$(jq -r ".home_path" "$userparams_input")
 CMSSW_base_path=$(jq -r ".CMSSW_base_path" "$userparams_input")

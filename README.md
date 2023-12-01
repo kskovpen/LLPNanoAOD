@@ -95,3 +95,21 @@ Example for TTToSemiLeptonic Summer20UL18 file on DAS:
   },
 }
 ```
+
+## Run scripts ##
+
+### Input variables for running ###
+
+* Process number: corresponding to file numbers in the dataset
+* Dataset type: as specified in your `userparams.json`
+* Dataset name: as specified in your `userparams.json`
+* Number of files: How many files to use per run (condor job) - which files are dependent on the process number
+* Number of events: Number of events to run over - 0 = all events in the files
+
+### Locally bash script ###
+
+`./run_LLPNanoAOD.sh {process number} {dataset type} {dataset name} {number of files per job} {number of events}`
+
+### Condor ###
+
+Example of condor submission found in `run_LLPNanoAOD.sub` for 2018 TTToSemiLeptonic dataset. General example is found in the template `run_LLPNanoAOD.sub.template`.

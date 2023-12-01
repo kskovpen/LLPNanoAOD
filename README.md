@@ -5,9 +5,8 @@ LLPNanoAOD is an extension of NanoAOD with parameters useful for analyses with L
 LLPNanoAOD includes variables for:
 * DisplacedStandAloneMuons (DSAMuon)
 * BeamSpot (BS)
-* Extended Muon viarables (MuonExtended)
-* Extended Electron viarables (ElectronExtended)
-* Extended IsoTrack viarables (IsoTrackExtended)
+* Extended Muon viarables (Muon)
+* Muon vertices (MuonVertex, MuonCombVertex, DSAMuonVertex)
 
 ## run_LLPNanoAOD ##
 
@@ -18,8 +17,6 @@ run_LLPNanoAOD.sub (for condor)
     LLPNanoAOD_cfg.py
 ```
 
-You might need to go to your CMSSW_10_6_29 release and do `cmsenv` before running.
-
 ## Setup CMSSW environment for LLPNanoAOD ##
 
 Using CMSSW_10_6_29 release:
@@ -28,25 +25,27 @@ Using CMSSW_10_6_29 release:
 cmsrel CMSSW_10_6_29
 cd CMSSW_10_6_29/src
 cmsenv
+git cms-addpkg PhysicsTools/NanoAOD
 ```
 
 ### Include LLP table producers: ###
 
 #### Include producers: ####
 
-Make sure to include the following plugins:
+Make sure to include the following plugins in PhysicsTools/NanoAOD/plugins:
 * `DSAMuonTableProcuder.cc`
 * `BeamSpotTableProcuder.cc`
-* `MuonExtendedTableProcuder.cc`
-* `ElectronExtendedTableProcuder.cc`
-* `IsoTrackExtendedTableProcuder.cc`
+* `MuonVertexTableProducer.cc`
 And an updated build file:
 * `BuildFile.xml` in the same plugin directory
 
-In your setup CMSSW_10_6_29 source directory:
+Make sure to include the following python scripts in PhysicsTools/NanoAOD/python:
+*  llpnano_cff.py
+
+In your setup CMSSW_10_6_29 directory:
 ```
 cd CMSSW_10_6_29/src
-git-cms-addpkg PhysicsTools/NanoAOD
+cmsenv
 cp {LLPNanoAOD base path}/PhysicsTools/NanoAOD/plugins/*.cc PhysicsTools/NanoAOD/plugins/.
 cp {LLPNanoAOD base path}/PhysicsTools/NanoAOD/plugins/BuildFile.xml PhysicsTools/NanoAOD/plugins/.
 scram b -j
@@ -58,8 +57,11 @@ Create your own `userparams.json` config file in `UserParameters`, following the
 
 Settings that has to be set:
 * `output_base_path`: desired output path
+* `home_path`: path to local home directory, this is to export the home path when running on condor to run root modules
 * `CMSSW_base_path`: path to the directory where your CMSSW_10_6_29 release (see above) is stored
 * `LLP_working_path`: path to your local LLP directory
+* `dasgoclient_path`: path to dasgoclient
+* `proxy_path`: path to private proxy for connecting to das
 
 ### Datasets ###
 The dataset you want to use as input has to be given in your userparams in the nested dictionary `datasets`:
@@ -79,7 +81,7 @@ The `dataset_type` and `dataset_name` will also be used as the name of the outpu
 ```
 output_base_path/dataset_type/dataset_name/LLPNanoAOD/filename.root
 ```
-The variable `files` is not used but given for your own use to store the information if wanted. The script in `UserParameters/update_UserParameters_files.py` is provided wich runs over all datasets and if `"files" : 0` and `"input_format": "das"` then the script will run `dasgoclinet` on the dataset and replace 0 with the number of MiniAOD files.
+The variable `files` is not used but given for your own use to store the information if wanted. 
 
 Example for TTToSemiLeptonic Summer20UL18 file on DAS:
 ```

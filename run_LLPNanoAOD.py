@@ -55,7 +55,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(options.inputFiles),
     secondaryFileNames = cms.untracked.vstring(),
-    duplicateCheckMode = cms.untracked.string('checkEachRealDataFile')
+    duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 )
 
 process.options = cms.untracked.PSet(
@@ -87,42 +87,42 @@ process.NANOAODSIMoutput = cms.OutputModule("NanoAODOutputModule",
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '106X_upgrade2018_realistic_v16_L1v1', '')
 
+# LLPnanoAOD custom producers
+
 # DisplacedStandAloneMuon table
 process.dSAMuonsTable = cms.EDProducer("DSAMuonTableProducer",
-    displacedMuons=cms.InputTag("displacedStandAloneMuons"),
+    dsaMuons=cms.InputTag("displacedStandAloneMuons"),
+    muons=cms.InputTag("linkedObjects","muons"),
     primaryVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
-    beamSpot = cms.InputTag("offlineBeamSpot")
+    beamspot = cms.InputTag("offlineBeamSpot")
 )
 # BeamSpot table
 process.beamSpotTable = cms.EDProducer("BeamSpotTableProducer",
     beamSpot = cms.InputTag("offlineBeamSpot")
 )
-# Vertex between two (default) muons
+# Vertex between two muons (pat-pat, pat-dsa or dsa-dsa)
 process.muonVertexTable = cms.EDProducer("MuonVertexTableProducer",
-    displacedMuons=cms.InputTag("displacedStandAloneMuons"),
-    muons=cms.InputTag("linkedObjects","muons"),
-    muonCombination = cms.string("muon")
+    dsaMuons=cms.InputTag("displacedStandAloneMuons"),
+    patMuons=cms.InputTag("linkedObjects","muons"),
+    beamspot=cms.InputTag("offlineBeamSpot"),
+    generalTracks=cms.InputTag("generalTracks")
 )
-# Vertex between one (default) muon and one displaced standalone muon
-process.muonCombVertexTable = cms.EDProducer("MuonVertexTableProducer",
-    displacedMuons=cms.InputTag("displacedStandAloneMuons"),
+# LLPnanoAOD Muon extended table
+process.muonExtendedTable = cms.EDProducer("MuonExtendedTableProducer",
+    name=cms.string("Muon"),
     muons=cms.InputTag("linkedObjects","muons"),
-    muonCombination = cms.string("comb")
-)
-# Vertex between two displaced standalone muon
-process.dsamuonVertexTable = cms.EDProducer("MuonVertexTableProducer",
-    displacedMuons=cms.InputTag("displacedStandAloneMuons"),
-    muons=cms.InputTag("linkedObjects","muons"),
-    muonCombination = cms.string("dsa")
+    dsaMuons=cms.InputTag("displacedStandAloneMuons"),
+    primaryVertex=cms.InputTag("offlineSlimmedPrimaryVertices"),
+    beamspot=cms.InputTag("offlineBeamSpot"),
+    generalTracks=cms.InputTag("generalTracks")
 )
 
 # Path and EndPath definitions
 process.nanoAOD_step = cms.Path(process.nanoSequenceMC
                                 +process.dSAMuonsTable
+                                +process.muonExtendedTable
                                 +process.beamSpotTable
                                 +process.muonVertexTable
-                                +process.muonCombVertexTable
-                                +process.dsamuonVertexTable
                                 )
 
 process.endjob_step = cms.EndPath(process.endOfProcess)
@@ -144,9 +144,6 @@ process.options.numberOfConcurrentLuminosityBlocks=cms.untracked.uint32(1)
 from PhysicsTools.NanoAOD.nano_cff import nanoAOD_customizeMC 
 #call to customisation function nanoAOD_customizeMC imported from PhysicsTools.NanoAOD.nano_cff
 process = nanoAOD_customizeMC(process)
-
-from PhysicsTools.NanoAOD.llpnano_cff import LLPNanoAOD_customize
-process = LLPNanoAOD_customize(process)
 
 # End of customisation functions
 

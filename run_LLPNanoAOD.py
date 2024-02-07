@@ -19,6 +19,12 @@ options.register('nEvents',
                     VarParsing.varType.int,
                     "Number of events to process"
                 )
+options.register('runOnData',
+                    '',
+                    VarParsing.multiplicity.singleton,
+                    VarParsing.varType.bool,
+                    "If running on data"
+                )
 options.parseArguments()
 
 nevents = options.nEvents
@@ -31,6 +37,10 @@ print('Running run_LLPNanoAOD.py')
 #     print(file)
 print('-- Output NanoAOD file: '+options.outputFile)
 print('-- Running on '+str(nevents)+' number of events')
+if options.runOnData:
+    print('-- Running on data')
+else:
+    print('-- Running on mc')
 
 process = cms.Process('NANO',Run2_2018,run2_nanoAOD_106Xv2)
 
@@ -39,13 +49,15 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('PhysicsTools.NanoAOD.nano_cff')
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
+if not options.runOnData:
+    process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(nevents)
@@ -70,22 +82,34 @@ process.configurationMetadata = cms.untracked.PSet(
 
 # Output definition
 
+datatier = 'NANOAOD'
+outputcommands = process.NANOAODSIMEventContent.outputCommands
+if options.runOnData:
+    datatier = 'NANOAODSIM'
+    outputcommands = process.NANOAODEventContent.outputCommands
+
 process.NANOAODSIMoutput = cms.OutputModule("NanoAODOutputModule",
     compressionAlgorithm = cms.untracked.string('LZMA'),
     compressionLevel = cms.untracked.int32(9),
     dataset = cms.untracked.PSet(
-        dataTier = cms.untracked.string('NANOAODSIM'),
+        dataTier = cms.untracked.string(datatier),
         filterName = cms.untracked.string('')
     ),
     fileName = cms.untracked.string('file:{0}'.format(options.outputFile)),
-    outputCommands = process.NANOAODSIMEventContent.outputCommands
+    outputCommands = outputcommands
 )
 
 # Additional output definition
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '106X_upgrade2018_realistic_v16_L1v1', '')
+globalTag = ""
+if options.runOnData:
+    globalTag = GlobalTag(process.GlobalTag, '106X_dataRun2_v35', '')
+else:
+    globalTag = GlobalTag(process.GlobalTag, '106X_upgrade2018_realistic_v16_L1v1', '')
+process.GlobalTag = globalTag
+
 
 # LLPnanoAOD custom producers
 
@@ -99,6 +123,10 @@ process.dSAMuonsTable = cms.EDProducer("DSAMuonTableProducer",
 # BeamSpot table
 process.beamSpotTable = cms.EDProducer("BeamSpotTableProducer",
     beamSpot = cms.InputTag("offlineBeamSpot")
+)
+# GenPart table
+process.beamSpotTable = cms.EDProducer("GenParticlesExtendedTableProducer",
+    genparticles = cms.InputTag("finalGenParticles")
 )
 # Vertex between two muons (pat-pat, pat-dsa or dsa-dsa)
 process.muonVertexTable = cms.EDProducer("MuonVertexTableProducer",
@@ -118,7 +146,16 @@ process.muonExtendedTable = cms.EDProducer("MuonExtendedTableProducer",
 )
 
 # Path and EndPath definitions
-process.nanoAOD_step = cms.Path(process.nanoSequenceMC
+if options.runOnData:
+    process.nanoAOD_step = cms.Path(process.nanoSequence
+                                    +process.dSAMuonsTable
+                                    +process.muonExtendedTable
+                                    +process.beamSpotTable
+                                    +process.muonVertexTable
+                                    +process.muonVertexTable
+                                    )
+else:
+    process.nanoAOD_step = cms.Path(process.nanoSequenceMC
                                 +process.dSAMuonsTable
                                 +process.muonExtendedTable
                                 +process.beamSpotTable
@@ -134,16 +171,23 @@ from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 
 #Setup FWK for multithreaded
-#process.options.numberOfThreads=cms.untracked.uint32(2)
+# process.options.numberOfThreads=cms.untracked.uint32(2)
 process.options.numberOfStreams=cms.untracked.uint32(0)
 process.options.numberOfConcurrentLuminosityBlocks=cms.untracked.uint32(1)
 
 # customisation of the process.
 
-# Automatic addition of the customisation function from PhysicsTools.NanoAOD.nano_cff
-from PhysicsTools.NanoAOD.nano_cff import nanoAOD_customizeMC 
-#call to customisation function nanoAOD_customizeMC imported from PhysicsTools.NanoAOD.nano_cff
-process = nanoAOD_customizeMC(process)
+# customisation of the process.
+if options.runOnData:
+    # Automatic addition of the customisation function from PhysicsTools.NanoAOD.nano_cff
+    from PhysicsTools.NanoAOD.nano_cff import nanoAOD_customizeData 
+    #call to customisation function nanoAOD_customizeData imported from PhysicsTools.NanoAOD.nano_cff
+    process = nanoAOD_customizeData(process)
+else:
+    # Automatic addition of the customisation function from PhysicsTools.NanoAOD.nano_cff
+    from PhysicsTools.NanoAOD.nano_cff import nanoAOD_customizeMC 
+    #call to customisation function nanoAOD_customizeMC imported from PhysicsTools.NanoAOD.nano_cff
+    process = nanoAOD_customizeMC(process)
 
 # End of customisation functions
 

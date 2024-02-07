@@ -99,14 +99,12 @@ void MuonExtendedTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
 
   std::vector<float> idx, trkPt, trkPtErr;
 
-  std::vector<float> dxyPV,dxyPVErr,dzPV,dzPVErr,dxyPVTraj,dxyPVTrajErr,dxyPVAbs,dxyPVAbsErr,dxyPVSigned,dxyPVSignedErr;
-  std::vector<float> ip3DPVAbs,ip3DPVAbsErr,ip3DPVSigned,ip3DPVSignedErr;
-  std::vector<float> dxyBS,dxyBSErr,dzBS,dzBSErr,dxyBSTraj,dxyBSTrajErr,dxyBSAbs,dxyBSAbsErr,dxyBSSigned,dxyBSSignedErr;
-  std::vector<float> ip3DBSAbs,ip3DBSAbsErr,ip3DBSSigned,ip3DBSSignedErr;
+  std::vector<float> dzPV,dzPVErr,dxyPVTraj,dxyPVTrajErr,dxyPVSigned,dxyPVSignedErr,ip3DPVSigned,ip3DPVSignedErr;
+  std::vector<float> dxyBS,dxyBSErr,dzBS,dzBSErr,dxyBSTraj,dxyBSTrajErr,dxyBSSigned,dxyBSSignedErr,ip3DBSSigned,ip3DBSSignedErr;
 
   std::vector<float> trkNumPlanes,trkNumHits,trkNumDTHits,trkNumCSCHits,trkNumPixelHits(nMuons,-1),trkNumTrkLayers(nMuons,-1),normChi2;
-  std::vector<float> outerEta(nMuons,-1),outerPhi(nMuons,-1);
-  std::vector<float> innerVx(nMuons,-1),innerVy(nMuons,-1),innerVz(nMuons,-1),innerPt(nMuons,-1),innerEta(nMuons,-1),innerPhi(nMuons,-1);
+  std::vector<float> outerEta(nMuons,-5),outerPhi(nMuons,-5);
+  std::vector<float> innerVx(nMuons,-1),innerVy(nMuons,-1),innerVz(nMuons,-1),innerPt(nMuons,-1),innerEta(nMuons,-5),innerPhi(nMuons,-5);
 
   std::vector<std::vector<float>> nMatchesPerDSA;
   std::vector<float> dsaMatch1,dsaMatch1idx,dsaMatch2,dsaMatch2idx,dsaMatch3,dsaMatch3idx,dsaMatch4,dsaMatch4idx,dsaMatch5,dsaMatch5idx;
@@ -128,43 +126,28 @@ void MuonExtendedTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
     trkPt.push_back(track->pt());
     trkPtErr.push_back(track->ptError());
 
-    dxyPV.push_back(track->dxy(pv.position()));
-    dxyPVErr.push_back(track->dxyError(pv.position(), pv.covariance()));
     dzPV.push_back(track->dz(pv.position()));
     dzPVErr.push_back(std::hypot(track->dzError(), pv.zError()));
-
     TrajectoryStateClosestToPoint trajectoryPV = transientTrack.trajectoryStateClosestToPoint(primaryVertex);
     dxyPVTraj.push_back(trajectoryPV.perigeeParameters().transverseImpactParameter());
     dxyPVTrajErr.push_back(trajectoryPV.perigeeError().transverseImpactParameterError());
-
-
-    dxyPVAbs.push_back(IPTools::absoluteTransverseImpactParameter(transientTrack, pv).second.value());
-    dxyPVAbsErr.push_back(IPTools::absoluteTransverseImpactParameter(transientTrack, pv).second.error());
     GlobalVector muonRefTrackDir(muon.px(),muon.py(),muon.pz());
     dxyPVSigned.push_back(IPTools::signedTransverseImpactParameter(transientTrack, muonRefTrackDir, pv).second.value());
     dxyPVSignedErr.push_back(IPTools::signedTransverseImpactParameter(transientTrack, muonRefTrackDir, pv).second.error());
-
-    ip3DPVAbs.push_back(IPTools::absoluteImpactParameter3D(transientTrack, beamSpotVertex).second.value());
-    ip3DPVAbsErr.push_back(IPTools::absoluteImpactParameter3D(transientTrack, beamSpotVertex).second.error());
+    
     ip3DPVSigned.push_back(IPTools::signedImpactParameter3D(transientTrack, muonRefTrackDir, beamSpotVertex).second.value());
     ip3DPVSignedErr.push_back(IPTools::signedImpactParameter3D(transientTrack, muonRefTrackDir, beamSpotVertex).second.error());  
 
     dxyBS.push_back(track->dxy(bs));
-    dxyBSErr.push_back(track->dxyError(bs, beamSpotVertex.covariance()));
+    dxyBSErr.push_back(std::hypot(track->dxyError(), beamSpotVertex.zError()));
     dzBS.push_back(track->dz(bs));
     dzBSErr.push_back(std::hypot(track->dzError(), beamSpotVertex.zError()));
-
     TrajectoryStateClosestToBeamLine trajectoryBS = transientTrack.stateAtBeamLine();
     dxyBSTraj.push_back(trajectoryBS.transverseImpactParameter().value());
     dxyBSTrajErr.push_back(trajectoryBS.transverseImpactParameter().error());
-
-    dxyBSAbs.push_back(IPTools::absoluteTransverseImpactParameter(transientTrack, beamSpotVertex).second.value());
-    dxyBSAbsErr.push_back(IPTools::absoluteTransverseImpactParameter(transientTrack, beamSpotVertex).second.error());
     dxyBSSigned.push_back(IPTools::signedTransverseImpactParameter(transientTrack, muonRefTrackDir, beamSpotVertex).second.value());
     dxyBSSignedErr.push_back(IPTools::signedTransverseImpactParameter(transientTrack, muonRefTrackDir, beamSpotVertex).second.error());  
 
-    ip3DBSAbs.push_back(IPTools::absoluteImpactParameter3D(transientTrack, beamSpotVertex).second.value());
-    ip3DBSAbsErr.push_back(IPTools::absoluteImpactParameter3D(transientTrack, beamSpotVertex).second.error());
     ip3DBSSigned.push_back(IPTools::signedImpactParameter3D(transientTrack, muonRefTrackDir, beamSpotVertex).second.value());
     ip3DBSSignedErr.push_back(IPTools::signedImpactParameter3D(transientTrack, muonRefTrackDir, beamSpotVertex).second.error()); 
 
@@ -215,9 +198,6 @@ void MuonExtendedTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
     dsaMatch5.push_back(dsaMatches[4].first);
     dsaMatch5idx.push_back(dsaMatches[4].second);
 
-    // displacedTrackIso03.push_back(getTrackerIsolation(*generalTracks.product(),muon,*beamspots.product(), 0.3));
-    // displacedTrackIso04.push_back(getTrackerIsolation(*generalTracks.product(),muon,*beamspots.product(), 0.4));
-
   }
 
   auto tab  = std::make_unique<nanoaod::FlatTable>(nMuons, name_, false, true);
@@ -226,19 +206,12 @@ void MuonExtendedTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
   tab->addColumn<float>("trkPt", trkPt, "", nanoaod::FlatTable::FloatColumn);
   tab->addColumn<float>("trkPtErr", trkPtErr, "", nanoaod::FlatTable::FloatColumn);
 
-  tab->addColumn<float>("dxyPV", dxyPV, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dxyPVErr", dxyPVErr, "",  nanoaod::FlatTable::FloatColumn);
   tab->addColumn<float>("dzPV", dzPV, "",  nanoaod::FlatTable::FloatColumn);
   tab->addColumn<float>("dzPVErr", dzPVErr, "",  nanoaod::FlatTable::FloatColumn);
-
   tab->addColumn<float>("dxyPVTraj", dxyPVTraj, "",  nanoaod::FlatTable::FloatColumn);
   tab->addColumn<float>("dxyPVTrajErr", dxyPVTrajErr, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dxyPVAbs", dxyPVAbs, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dxyPVAbsErr", dxyPVAbsErr, "",  nanoaod::FlatTable::FloatColumn);
   tab->addColumn<float>("dxyPVSigned", dxyPVSigned, "",  nanoaod::FlatTable::FloatColumn);
   tab->addColumn<float>("dxyPVSignedErr", dxyPVSignedErr, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("ip3DPVAbs", ip3DPVAbs, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("ip3DPVAbsErr", ip3DPVAbsErr, "",  nanoaod::FlatTable::FloatColumn);
   tab->addColumn<float>("ip3DPVSigned", ip3DPVSigned, "",  nanoaod::FlatTable::FloatColumn);
   tab->addColumn<float>("ip3DPVSignedErr", ip3DPVSignedErr, "",  nanoaod::FlatTable::FloatColumn);
 
@@ -246,15 +219,10 @@ void MuonExtendedTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
   tab->addColumn<float>("dxyBSErr", dxyBSErr, "",  nanoaod::FlatTable::FloatColumn);
   tab->addColumn<float>("dzBS", dzBS, "",  nanoaod::FlatTable::FloatColumn);
   tab->addColumn<float>("dzBSErr", dzBSErr, "",  nanoaod::FlatTable::FloatColumn);
-
   tab->addColumn<float>("dxyBSTraj", dxyBSTraj, "",  nanoaod::FlatTable::FloatColumn);
   tab->addColumn<float>("dxyBSTrajErr", dxyBSTrajErr, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dxyBSAbs", dxyBSAbs, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dxyBSAbsErr", dxyBSAbsErr, "",  nanoaod::FlatTable::FloatColumn);
   tab->addColumn<float>("dxyBSSigned", dxyBSSigned, "",  nanoaod::FlatTable::FloatColumn);
   tab->addColumn<float>("dxyBSSignedErr", dxyBSSignedErr, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("ip3DBSAbs", ip3DBSAbs, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("ip3DBSAbsErr", ip3DBSAbsErr, "",  nanoaod::FlatTable::FloatColumn);
   tab->addColumn<float>("ip3DBSSigned", ip3DBSSigned, "",  nanoaod::FlatTable::FloatColumn);
   tab->addColumn<float>("ip3DBSSignedErr", ip3DBSSignedErr, "",  nanoaod::FlatTable::FloatColumn);
 
@@ -288,9 +256,6 @@ void MuonExtendedTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
   tab->addColumn<float>("dsaMatch4idx", dsaMatch4idx, "",  nanoaod::FlatTable::FloatColumn);
   tab->addColumn<float>("dsaMatch5", dsaMatch5, "",  nanoaod::FlatTable::FloatColumn);
   tab->addColumn<float>("dsaMatch5idx", dsaMatch5idx, "",  nanoaod::FlatTable::FloatColumn);
-
-  // tab->addColumn<float>("displacedTrackIso03", displacedTrackIso03, "",  nanoaod::FlatTable::FloatColumn);
-  // tab->addColumn<float>("displacedTrackIso04", displacedTrackIso04, "",  nanoaod::FlatTable::FloatColumn);
 
   iEvent.put(std::move(tab));
 }

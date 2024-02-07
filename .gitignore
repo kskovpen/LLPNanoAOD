@@ -1,7 +1,8 @@
 
 *.log
 *.out
-*.error
+*.err
+*.txt
 
 UserParameters/__pycache__/
-
+crab/crab_projects/*

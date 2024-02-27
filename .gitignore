@@ -4,5 +4,5 @@
 *.err
 *.txt
 
-UserParameters/__pycache__/
-crab/crab_projects/*
+tmp/*
+crab_projects/*

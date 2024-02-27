@@ -232,8 +232,6 @@ void DSAMuonTableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm:
 
   dsaMuonTab->addColumn<float>("displacedID", displacedId, "",  nanoaod::FlatTable::FloatColumn);
 
-  dsaMuonTab->addColumn<std::vector<float>>("nMatchesPerMuon", nMatchesPerMuon, "",  nanoaod::FlatTable::VFloatColumn);
-
   dsaMuonTab->addColumn<float>("muonMatch1", muonMatch1, "",  nanoaod::FlatTable::FloatColumn);
   dsaMuonTab->addColumn<float>("muonMatch1idx", muonMatch1idx, "",  nanoaod::FlatTable::FloatColumn);
   dsaMuonTab->addColumn<float>("muonMatch2", muonMatch2, "",  nanoaod::FlatTable::FloatColumn);

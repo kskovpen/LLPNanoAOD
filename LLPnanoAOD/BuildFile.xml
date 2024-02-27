@@ -1,0 +1,9 @@
+<use name="FWCore/Framework"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="PhysicsTools/SelectorUtils"/>
+<use name="DeepNTuples/NtupleCommons"/>
+<use name="DeepNTuples/FatJetHelpers"/>
+<use name="DeepNTuples/BTagHelpers"/>
+<export>
+  <lib name="1"/>
+</export>

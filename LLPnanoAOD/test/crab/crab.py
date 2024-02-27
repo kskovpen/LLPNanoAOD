@@ -166,7 +166,7 @@ def createConfig(args, dataset):
     config.JobType.maxMemoryMB = args.max_memory
     config.JobType.maxJobRuntimeMin = args.max_runtime_min
     runOnData = not isMC
-    config.JobType.pyCfgParams = ['nEvents=%s' % args.nEvents, 'runOnData=%s' % runOnData]
+    config.JobType.pyCfgParams = ['nEvents=%s' % args.nEvents, 'includeDSAMuon=%s' % args.includeDSAMuon, 'includeBS=%s' % args.includeBS, 'includeGenPart=%s' % args.includeGenPart, 'includeDGLMuon=%s' % args.includeDGLMuon]
     if args.set_input_dataset:
         config.JobType.pyCfgParams.append('inputDataset=%s' % dataset)
     if len(args.input_files) > 0:
@@ -586,6 +586,22 @@ def main():
     parser.add_argument('--nEvents',
                         default=0,
                         help='Max number of events / file. Default: %(default)s = all data'
+                        )
+    parser.add_argument('--includeDSAMuon',
+                        action='store_true', default=False,
+                        help='Include Displaced StandAlone muon collections in LLPnanoAOD. Default: %(default)s'
+                        )
+    parser.add_argument('--includeBS',
+                        action='store_true', default=False,
+                        help='Include BeamSpot collection in LLPnanoAOD. Default: %(default)s'
+                        )
+    parser.add_argument('--includeGenPart',
+                        action='store_true', default=False,
+                        help='Include extended GenPart collection information in LLPnanoAOD. Default: %(default)s'
+                        )
+    parser.add_argument('--includeDGLMuon',
+                        action='store_true', default=False,
+                        help='Include Displaced GLobal Muon collection in LLPnanoAOD. Default: %(default)s'
                         )
     args = parser.parse_args()
 

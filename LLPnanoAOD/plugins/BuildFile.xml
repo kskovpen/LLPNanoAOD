@@ -12,6 +12,7 @@
 <use   name="roothistmatrix"/>
 <use   name="RecoVertex/VertexTools"/>
 <use   name="RecoVertex/VertexPrimitives"/>
+<use   name="RecoVertex/KalmanVertexFit"/>
 <use   name="DataFormats/L1TGlobal"/>
 <use   name="IOPool/Provenance"/>
 <use   name="DQMServices/Core"/>
@@ -25,6 +26,4 @@
 <use   name="TrackingTools/IPTools"/>
 <use   name="fastjet"/>
 <use   name="fastjet-contrib"/>
-<library   file="*.cc" name="PhysicsToolsNanoAODPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>
+<flags EDM_PLUGIN="1"/>

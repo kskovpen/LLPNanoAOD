@@ -14,16 +14,14 @@ from Configuration.ProcessModifiers.run2_miniAOD_UL_preSummer20_cff import run2_
 
 # Input arguments
 options = VarParsing('analysis')
-options.outputFile = 'output.root'
-options.inputFiles = 'root://cms-xrd-global.cern.ch///store/mc/RunIISummer20UL18RECO/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v2/00000/36720F3D-EF38-114C-A60D-14023726151B.root'
 options.register('nEvents',
-                    0,
+                    '',
                     VarParsing.multiplicity.singleton,
                     VarParsing.varType.int,
                     "Number of events to process"
                 )
 options.register('runOnData',
-                    False,
+                    '',
                     VarParsing.multiplicity.singleton,
                     VarParsing.varType.bool,
                     "If running on data"
@@ -162,9 +160,6 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
 )
 
 # Additional output definition
-process.MINIAODSIMoutput.outputCommands.append('keep *_displacedStandAloneMuons_*_*')
-process.MINIAODSIMoutput.outputCommands.append('keep *_muonReducedTrackExtras_*_*')
-process.MINIAODSIMoutput.outputCommands.append('keep *_generalTracks_*_*')
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -177,6 +172,7 @@ process.GlobalTag = globalTag
 
 
 # Path and EndPath definitions
+# process.DSAMuon_step = cms.Path(process.DSASequence)
 process.Flag_trackingFailureFilter = cms.Path(process.goodVertices+process.trackingFailureFilter)
 process.Flag_goodVertices = cms.Path(process.primaryVertexFilter)
 process.Flag_CSCTightHaloFilter = cms.Path(process.CSCTightHaloFilter)
@@ -211,6 +207,7 @@ process.MINIAODSIMoutput_step = cms.EndPath(process.MINIAODSIMoutput)
 
 
 # Schedule definition
+# process.schedule = cms.Schedule(process.DSAMuon_step,process.Flag_HBHENoiseFilter,process.Flag_HBHENoiseIsoFilter,process.Flag_CSCTightHaloFilter,process.Flag_CSCTightHaloTrkMuUnvetoFilter,process.Flag_CSCTightHalo2015Filter,process.Flag_globalTightHalo2016Filter,process.Flag_globalSuperTightHalo2016Filter,process.Flag_HcalStripHaloFilter,process.Flag_hcalLaserEventFilter,process.Flag_EcalDeadCellTriggerPrimitiveFilter,process.Flag_EcalDeadCellBoundaryEnergyFilter,process.Flag_ecalBadCalibFilter,process.Flag_goodVertices,process.Flag_eeBadScFilter,process.Flag_ecalLaserCorrFilter,process.Flag_trkPOGFilters,process.Flag_chargedHadronTrackResolutionFilter,process.Flag_muonBadTrackFilter,process.Flag_BadChargedCandidateFilter,process.Flag_BadPFMuonFilter,process.Flag_BadPFMuonDzFilter,process.Flag_hfNoisyHitsFilter,process.Flag_BadChargedCandidateSummer16Filter,process.Flag_BadPFMuonSummer16Filter,process.Flag_trkPOG_manystripclus53X,process.Flag_trkPOG_toomanystripclus53X,process.Flag_trkPOG_logErrorTooManyClusters,process.Flag_METFilters,process.endjob_step,process.MINIAODSIMoutput_step)
 process.schedule = cms.Schedule(process.Flag_HBHENoiseFilter,process.Flag_HBHENoiseIsoFilter,process.Flag_CSCTightHaloFilter,process.Flag_CSCTightHaloTrkMuUnvetoFilter,process.Flag_CSCTightHalo2015Filter,process.Flag_globalTightHalo2016Filter,process.Flag_globalSuperTightHalo2016Filter,process.Flag_HcalStripHaloFilter,process.Flag_hcalLaserEventFilter,process.Flag_EcalDeadCellTriggerPrimitiveFilter,process.Flag_EcalDeadCellBoundaryEnergyFilter,process.Flag_ecalBadCalibFilter,process.Flag_goodVertices,process.Flag_eeBadScFilter,process.Flag_ecalLaserCorrFilter,process.Flag_trkPOGFilters,process.Flag_chargedHadronTrackResolutionFilter,process.Flag_muonBadTrackFilter,process.Flag_BadChargedCandidateFilter,process.Flag_BadPFMuonFilter,process.Flag_BadPFMuonDzFilter,process.Flag_hfNoisyHitsFilter,process.Flag_BadChargedCandidateSummer16Filter,process.Flag_BadPFMuonSummer16Filter,process.Flag_trkPOG_manystripclus53X,process.Flag_trkPOG_toomanystripclus53X,process.Flag_trkPOG_logErrorTooManyClusters,process.Flag_METFilters,process.endjob_step,process.MINIAODSIMoutput_step)
 process.schedule.associate(process.patTask)
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask

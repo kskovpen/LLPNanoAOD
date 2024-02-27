@@ -97,7 +97,7 @@ void MuonExtendedTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
   unsigned int nMuons = muons->size();
   unsigned int nDsaMuons = dsaMuons->size();
 
-  std::vector<float> idx, trkPt, trkPtErr;
+  std::vector<float> idx, charge, trkPt, trkPtErr;
 
   std::vector<float> dzPV,dzPVErr,dxyPVTraj,dxyPVTrajErr,dxyPVSigned,dxyPVSignedErr,ip3DPVSigned,ip3DPVSignedErr;
   std::vector<float> dxyBS,dxyBSErr,dzBS,dzBSErr,dxyBSTraj,dxyBSTrajErr,dxyBSSigned,dxyBSSignedErr,ip3DBSSigned,ip3DBSSignedErr;
@@ -114,14 +114,28 @@ void MuonExtendedTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
   for (unsigned int i = 0; i < nMuons; i++) {
     const pat::Muon & muon = (*muons)[i];
     const pat::MuonRef muonRef(muons,i);
-    idx.push_back(i);
 
     // const auto& track = muon.bestTrack();
-    reco::TrackRef track = muon.tunePMuonBestTrack();
-    // reco::TrackRef trackRef = muonRef->combinedMuon();
-    if (!track.isNonnull()) continue;
+    // const reco::Track* track; // = muon.tunePMuonBestTrack();
+    reco::TrackRef trackRef; // = muonRef->combinedMuon();
 
+    if(muon.isGlobalMuon()) {
+      trackRef = muon.combinedMuon();
+    }
+    else if (muon.isStandAloneMuon()) {
+      trackRef = muon.standAloneMuon();
+    }
+    else {
+      trackRef = muon.tunePMuonBestTrack();
+    }
+
+    // if (!trackRef.isNonnull()) continue;
+    idx.push_back(i);
+
+    const auto& track = trackRef.get();
     reco::TransientTrack transientTrack = builder->build(track);
+
+    charge.push_back(muon.charge());
 
     trkPt.push_back(track->pt());
     trkPtErr.push_back(track->ptError());
@@ -159,10 +173,10 @@ void MuonExtendedTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
 
     normChi2.push_back(track->normalizedChi2());
 
-    if (track->extra().isNonnull() && track->extra().isAvailable() && track->outerOk()) {
-      outerEta[i] = track->outerEta();
-      outerPhi[i] = track->outerPhi();
-    }
+    // if (track->extra().isNonnull() && track->extra().isAvailable() && track->outerOk()) {
+    outerEta[i] = track->outerEta();
+    outerPhi[i] = track->outerPhi();
+    // }
 
     if(muon.innerTrack().isNonnull() && muon.innerTrack().isAvailable()){
       innerVx[i] = muon.innerTrack()->vx();
@@ -244,8 +258,6 @@ void MuonExtendedTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
   tab->addColumn<float>("innerEta", innerEta, "",  nanoaod::FlatTable::FloatColumn);
   tab->addColumn<float>("innerPhi", innerPhi, "",  nanoaod::FlatTable::FloatColumn);
 
-  tab->addColumn<std::vector<float>>("nMatchesPerDSA", nMatchesPerDSA, "",  nanoaod::FlatTable::VFloatColumn);
-
   tab->addColumn<float>("dsaMatch1", dsaMatch1, "",  nanoaod::FlatTable::FloatColumn);
   tab->addColumn<float>("dsaMatch1idx", dsaMatch1idx, "",  nanoaod::FlatTable::FloatColumn);
   tab->addColumn<float>("dsaMatch2", dsaMatch2, "",  nanoaod::FlatTable::FloatColumn);
@@ -291,34 +303,6 @@ int MuonExtendedTableProducer::getMatches(const pat::Muon& muon, const reco::Tra
   }
   return nMatches;
 }
-
-// float MuonExtendedTableProducer::getTrackerIsolation(const std::vector<reco::Track>& generalTracks, 
-//                                                     const pat::Muon& muon, const reco::BeamSpot& beamspot,
-//                                                     float maxDR, float minDR, float maxDz, float maxDxy) const 
-// {
-//   reco::TrackRef muonTrack = muon.tunePMuonBestTrack();
-
-//   float trackPtSum = 0;
-
-//   int nGeneralTracks = generalTracks.size();
-//   for (int i = 0; i < nGeneralTracks; i++) {
-//     const reco::Track & generalTrack = (generalTracks)[i];
-
-//     float dR = deltaR(muon.eta(), muon.phi(), generalTrack.eta(), generalTrack.phi());
-//     if (dR > maxDR) continue;
-
-//     if (abs(generalTrack.vz() - muonTrack->vz()) > maxDz) continue;
-
-//     if (generalTrack.dxy(beamspot) > maxDxy) continue;
-
-//     if (dR < minDR) continue;
-
-//     trackPtSum += generalTrack.pt();
-//   }
-
-//   float ptRatio = trackPtSum / muon.pt();
-//   return ptRatio;
-// }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 //define this as a plug-in

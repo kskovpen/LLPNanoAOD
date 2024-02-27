@@ -25,6 +25,30 @@ options.register('runOnData',
                     VarParsing.varType.bool,
                     "If running on data"
                 )
+options.register('includeDSAMuon',
+                    '',
+                    VarParsing.multiplicity.singleton,
+                    VarParsing.varType.bool,
+                    "Flag to include Displaced StandAlone muon information"
+                )
+options.register('includeBS',
+                    '',
+                    VarParsing.multiplicity.singleton,
+                    VarParsing.varType.bool,
+                    "Flag to include BeamSpot information"
+                )
+options.register('includeGenPart',
+                    '',
+                    VarParsing.multiplicity.singleton,
+                    VarParsing.varType.bool,
+                    "Flag to include extended GenPart information"
+                )
+options.register('includeDGLMuon',
+                    '',
+                    VarParsing.multiplicity.singleton,
+                    VarParsing.varType.bool,
+                    "Flag to include Displaced GLobal Muon information"
+                )
 options.parseArguments()
 
 nevents = options.nEvents
@@ -55,6 +79,9 @@ process.load('PhysicsTools.NanoAOD.nano_cff')
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
+process.MessageLogger.cerr.FwkReport.reportEvery = 100000  # Set reportEvery to control the frequency of report messages
+process.MessageLogger.threshold = cms.untracked.string('ERROR')  # Set the output threshold to ERROR
 
 if not options.runOnData:
     process.load('SimGeneral.MixingModule.mixNoPU_cfi')
@@ -113,9 +140,16 @@ process.GlobalTag = globalTag
 
 # LLPnanoAOD custom producers
 
-# DisplacedStandAloneMuon table
+# DisplacedStandAlone (DSA) Muon table
 process.dSAMuonsTable = cms.EDProducer("DSAMuonTableProducer",
     dsaMuons=cms.InputTag("displacedStandAloneMuons"),
+    muons=cms.InputTag("linkedObjects","muons"),
+    primaryVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    beamspot = cms.InputTag("offlineBeamSpot")
+)
+# DisplacedGLobal (DGL) Muon table
+process.dGlMuonsTable = cms.EDProducer("DGLMuonTableProducer",
+    dglMuons=cms.InputTag("displacedGlobalMuons"),
     muons=cms.InputTag("linkedObjects","muons"),
     primaryVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
     beamspot = cms.InputTag("offlineBeamSpot")
@@ -125,7 +159,7 @@ process.beamSpotTable = cms.EDProducer("BeamSpotTableProducer",
     beamSpot = cms.InputTag("offlineBeamSpot")
 )
 # GenPart table
-process.beamSpotTable = cms.EDProducer("GenParticlesExtendedTableProducer",
+process.genPartExtendedTable = cms.EDProducer("GenParticlesExtendedTableProducer",
     genparticles = cms.InputTag("finalGenParticles")
 )
 # Vertex between two muons (pat-pat, pat-dsa or dsa-dsa)
@@ -147,20 +181,21 @@ process.muonExtendedTable = cms.EDProducer("MuonExtendedTableProducer",
 
 # Path and EndPath definitions
 if options.runOnData:
-    process.nanoAOD_step = cms.Path(process.nanoSequence
-                                    +process.dSAMuonsTable
-                                    +process.muonExtendedTable
-                                    +process.beamSpotTable
-                                    +process.muonVertexTable
-                                    +process.muonVertexTable
-                                    )
+    process.nanoAOD_step = cms.Path(process.nanoSequence)
 else:
-    process.nanoAOD_step = cms.Path(process.nanoSequenceMC
-                                +process.dSAMuonsTable
-                                +process.muonExtendedTable
-                                +process.beamSpotTable
-                                +process.muonVertexTable
-                                )
+    process.nanoAOD_step = cms.Path(process.nanoSequenceMC)
+
+if options.includeDSAMuon:
+    process.nanoAOD_step += process.dSAMuonsTable
+    process.nanoAOD_step += process.muonExtendedTable
+    process.nanoAOD_step += process.muonVertexTable
+if options.includeDGLMuon:
+    process.nanoAOD_step += process.dGlMuonsTable
+    process.nanoAOD_step += process.dGlMuonVertexTable
+if options.includeBS:
+    process.nanoAOD_step += process.beamSpotTable
+if options.includeGenPart:
+    process.nanoAOD_step += process.genPartExtendedTable
 
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.NANOAODSIMoutput_step = cms.EndPath(process.NANOAODSIMoutput)

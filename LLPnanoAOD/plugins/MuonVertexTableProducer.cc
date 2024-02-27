@@ -84,9 +84,9 @@ void MuonVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, const e
 
   KalmanVertexFitter vertexFitter(true);
 
-  std::vector<float> ppVxy,ppVz,ppChi2,ppVxySigma,ppDR,ppIdx1,ppIdx2,ppIsDSAMuon1,ppIsDSAMuon2;
-  std::vector<float> pdVxy,pdVz,pdChi2,pdVxySigma,pdDR,pdIdx1,pdIdx2,pdIsDSAMuon1,pdIsDSAMuon2;
-  std::vector<float> ddVxy,ddVz,ddChi2,ddVxySigma,ddDR,ddIdx1,ddIdx2,ddIsDSAMuon1,ddIsDSAMuon2;
+  std::vector<float> ppVxy,ppVx,ppVy,ppVz,ppChi2,ppVxySigma,ppDR,ppIdx1,ppIdx2,ppIsDSAMuon1,ppIsDSAMuon2;
+  std::vector<float> pdVxy,pdVx,pdVy,pdVz,pdChi2,pdVxySigma,pdDR,pdIdx1,pdIdx2,pdIsDSAMuon1,pdIsDSAMuon2;
+  std::vector<float> ddVxy,ddVx,ddVy,ddVz,ddChi2,ddVxySigma,ddDR,ddIdx1,ddIdx2,ddIsDSAMuon1,ddIsDSAMuon2;
   std::vector<float> ppDisplacedTrackIso03Dimuon1,ppDisplacedTrackIso03Dimuon2,ppDisplacedTrackIso04Dimuon1,ppDisplacedTrackIso04Dimuon2;
   std::vector<float> pdDisplacedTrackIso03Dimuon1,pdDisplacedTrackIso03Dimuon2,pdDisplacedTrackIso04Dimuon1,pdDisplacedTrackIso04Dimuon2;
   std::vector<float> ddDisplacedTrackIso03Dimuon1,ddDisplacedTrackIso03Dimuon2,ddDisplacedTrackIso04Dimuon1,ddDisplacedTrackIso04Dimuon2;
@@ -119,6 +119,8 @@ void MuonVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, const e
       ppVxy.push_back(vxy.first);
       ppVxySigma.push_back(vxy.second);
       ppChi2.push_back(muonVertex.normalizedChi2());
+      ppVx.push_back(muonVertex.x());
+      ppVy.push_back(muonVertex.y());
       ppVz.push_back(muonVertex.z());
       ppDR.push_back(reco::deltaR(muon_i, muon_j));
       ppIdx1.push_back(i);
@@ -152,6 +154,8 @@ void MuonVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, const e
       pdVxy.push_back(vxy.first);
       pdVxySigma.push_back(vxy.second);
       pdChi2.push_back(muonVertex.normalizedChi2());
+      pdVx.push_back(muonVertex.x());
+      pdVy.push_back(muonVertex.y());
       pdVz.push_back(muonVertex.z());
       pdDR.push_back(reco::deltaR(muon_i.eta(), muon_i.phi(), muonTrack_j.eta(), muonTrack_j.phi()));
       pdIdx1.push_back(i);
@@ -193,6 +197,8 @@ void MuonVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, const e
       ddVxy.push_back(vxy.first);
       ddVxySigma.push_back(vxy.second);
       ddChi2.push_back(muonVertex.normalizedChi2());
+      ddVx.push_back(muonVertex.x());
+      ddVy.push_back(muonVertex.y());
       ddVz.push_back(muonVertex.z());
       ddDR.push_back(reco::deltaR(muonTrack_i.eta(), muonTrack_i.phi(), muonTrack_j.eta(), muonTrack_j.phi()));
       ddIdx1.push_back(i);
@@ -218,6 +224,8 @@ void MuonVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, const e
   patVertexTab->addColumn<float>("vxy", ppVxy, "",  nanoaod::FlatTable::FloatColumn);
   patVertexTab->addColumn<float>("vxySigma", ppVxySigma, "",  nanoaod::FlatTable::FloatColumn);
   patVertexTab->addColumn<float>("chi2", ppChi2, "",  nanoaod::FlatTable::FloatColumn);
+  patVertexTab->addColumn<float>("vx", ppVx, "",  nanoaod::FlatTable::FloatColumn);
+  patVertexTab->addColumn<float>("vy", ppVy, "",  nanoaod::FlatTable::FloatColumn);
   patVertexTab->addColumn<float>("vz", ppVz, "",  nanoaod::FlatTable::FloatColumn);
   patVertexTab->addColumn<float>("dR", ppDR, "",  nanoaod::FlatTable::FloatColumn);
   patVertexTab->addColumn<float>("idx1", ppIdx1, "",  nanoaod::FlatTable::FloatColumn);
@@ -236,6 +244,8 @@ void MuonVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, const e
   patdsaVertexTab->addColumn<float>("vxy", pdVxy, "",  nanoaod::FlatTable::FloatColumn);
   patdsaVertexTab->addColumn<float>("vxySigma", pdVxySigma, "",  nanoaod::FlatTable::FloatColumn);
   patdsaVertexTab->addColumn<float>("chi2", pdChi2, "",  nanoaod::FlatTable::FloatColumn);
+  patdsaVertexTab->addColumn<float>("vx", pdVx, "",  nanoaod::FlatTable::FloatColumn);
+  patdsaVertexTab->addColumn<float>("vy", pdVy, "",  nanoaod::FlatTable::FloatColumn);
   patdsaVertexTab->addColumn<float>("vz", pdVz, "",  nanoaod::FlatTable::FloatColumn);
   patdsaVertexTab->addColumn<float>("dR", pdDR, "",  nanoaod::FlatTable::FloatColumn);
   patdsaVertexTab->addColumn<float>("idx1", pdIdx1, "",  nanoaod::FlatTable::FloatColumn);
@@ -254,6 +264,8 @@ void MuonVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, const e
   dsaVertexTab->addColumn<float>("vxy", ddVxy, "",  nanoaod::FlatTable::FloatColumn);
   dsaVertexTab->addColumn<float>("vxySigma", ddVxySigma, "",  nanoaod::FlatTable::FloatColumn);
   dsaVertexTab->addColumn<float>("chi2", ddChi2, "",  nanoaod::FlatTable::FloatColumn);
+  dsaVertexTab->addColumn<float>("vx", ddVx, "",  nanoaod::FlatTable::FloatColumn);
+  dsaVertexTab->addColumn<float>("vy", ddVy, "",  nanoaod::FlatTable::FloatColumn);
   dsaVertexTab->addColumn<float>("vz", ddVz, "",  nanoaod::FlatTable::FloatColumn);
   dsaVertexTab->addColumn<float>("dR", ddDR, "",  nanoaod::FlatTable::FloatColumn);
   dsaVertexTab->addColumn<float>("idx1", ddIdx1, "",  nanoaod::FlatTable::FloatColumn);

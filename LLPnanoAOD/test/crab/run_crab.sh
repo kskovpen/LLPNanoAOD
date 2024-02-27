@@ -25,13 +25,16 @@ python $crabWorkspace/crab.py \
 -p $LLPnanoAODWorkspace/$runFile \
 --site T2_DE_DESY \
 -o /store/user/$USER/TTALPs \
--t LLPnanoAOD-$VERSION \
+-t LLPnanoAOD-v$VERSION \
 -i $INPUT \
 -s FileBased \
--n 5 \
---max-memory 2500 \
+-n 10 \
+--includeDSAMuon \
+--includeBS \
+--includeGenPart \
+--max-memory 3000 \
 --max-runtime-min 2750 \
 --work-area $crabWorkspace/crab_projects/crab_${filename}_$VERSION \
-# --dryrun
+--dryrun
 # --set-input-dataset \
 #--send-external \

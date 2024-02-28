@@ -5,111 +5,99 @@ LLPNanoAOD is an extension of NanoAOD with parameters useful for analyses with L
 LLPNanoAOD includes variables for:
 * DisplacedStandAloneMuons (DSAMuon)
 * BeamSpot (BS)
-* Extended Muon viarables (Muon)
-* Muon vertices (MuonVertex, MuonCombVertex, DSAMuonVertex)
+* Extended Muon viarables (Muon collection)
+* Muon vertices: 
+  * PatMuonVetex = between two Pat muons
+  * PatDSAMuonVertex = between one Pat muon and one DSA muon
+  * DSAMuonVertex = between two DSA muons
+* DisplacedGlobalMuons (DGLMuon)
+* Muon vertices for DGL muons:
+  * PatDGLMuonVetex = between one Pat muon and one DGL muon
+  * DGLDSAMuonVertex = between one DGL muon and one DSA muon
+  * DGLMuonVertex = between two DGL muons
+* Extended GenPart variables (GenPart collection)
 
-## run_LLPNanoAOD ##
+## Setup ##
 
-Several files are provided to run LLPNanoAOD, which will be run in order from top to bottom:
-```
-run_LLPNanoAOD.sub (for condor)
-  run_LLPNanoAOD.sh
-    LLPNanoAOD_cfg.py
-```
-
-## Setup CMSSW environment for LLPNanoAOD ##
-
-Using CMSSW_10_6_29 release:
+LLPNanoAOD has been setup for `CMSSW_10_6_29`.
 
 ```
 cmsrel CMSSW_10_6_29
 cd CMSSW_10_6_29/src
 cmsenv
-git cms-addpkg PhysicsTools/NanoAOD
-```
 
-### Include LLP table producers: ###
-
-#### Include producers: ####
-
-Make sure to include the following plugins in PhysicsTools/NanoAOD/plugins:
-* `DSAMuonTableProcuder.cc`
-* `BeamSpotTableProcuder.cc`
-* `MuonVertexTableProducer.cc`
-And an updated build file:
-* `BuildFile.xml` in the same plugin directory
-
-Make sure to include the following python scripts in PhysicsTools/NanoAOD/python:
-*  llpnano_cff.py
-
-In your setup CMSSW_10_6_29 directory:
-```
-cd CMSSW_10_6_29/src
-cmsenv
-cp {LLPNanoAOD base path}/PhysicsTools/NanoAOD/plugins/*.cc PhysicsTools/NanoAOD/plugins/.
-cp {LLPNanoAOD base path}/PhysicsTools/NanoAOD/plugins/BuildFile.xml PhysicsTools/NanoAOD/plugins/.
+git clone git@github.com:kerstinlovisa/LLPNanoAOD.git
 scram b -j
 ```
 
-## Setup user parameters for LLPNanoAOD ##
-
-Create your own `userparams.json` config file in `UserParameters`, following the example in `UserParameters/example_userparams.json`.
-
-Settings that has to be set:
-* `output_base_path`: desired output path
-* `home_path`: path to local home directory, this is to export the home path when running on condor to run root modules
-* `CMSSW_base_path`: path to the directory where your CMSSW_10_6_29 release (see above) is stored
-* `LLP_working_path`: path to your local LLP directory
-* `dasgoclient_path`: path to dasgoclient
-* `proxy_path`: path to private proxy for connecting to das
-
-### Datasets ###
-The dataset you want to use as input has to be given in your userparams in the nested dictionary `datasets`:
-
+Due to a bug to determine the charge of high pT tracks, corrections are made to RecoVertex scripts based on later (corrected) CMMSW releases:
 ```
-"datasets" = {
-  dataset_type: {
-    dataset_name: {
-      "dataset": dataset path,
-      "input_format": "das" for input from DAS or "local" for locally stored file,
-      "files": 0,
-    },
-  },
-}
-```
-The `dataset_type` and `dataset_name` will also be used as the name of the output directory. The full output path will be:
-```
-output_base_path/dataset_type/dataset_name/LLPNanoAOD/filename.root
-```
-The variable `files` is not used but given for your own use to store the information if wanted. 
+git cms-addpkg RecoVertex/KalmanVertexFit
+git cms-addpkg RecoVertex/VertexTools
+git cms-addpkg RecoVertex/KinematicFitPrimitives
 
-Example for TTToSemiLeptonic Summer20UL18 file on DAS:
-```
-"datasets" = {
-  "backgrounds18": {
-    "TTToSemiLeptonic": {
-        "dataset": "/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2/MINIAODSIM",
-        "input_format": "das",
-        "files": 10010,
-    },
-  },
-}
+cp LLPNanoAOD/RecoVertex_corrections/VertexTools/src/* RecoVertex/VertexTools/src/
+cp LLPNanoAOD/RecoVertex_corrections/VertexTools/interface/* RecoVertex/VertexTools/interface/
+cp LLPNanoAOD/RecoVertex_corrections/KalmanVertexFit/src/* RecoVertex/KalmanVertexFit/src/
+cp LLPNanoAOD/RecoVertex_corrections/KinematicFitPrimitives/src/* RecoVertex/KinematicFitPrimitives/src/
+
+scram b -j
 ```
 
-## Run scripts ##
+This will also extend the values of the `trackerBoundsRadius` and `trackerBoundsHalfLength` to:
+* `trackerBoundsRadius = 740` 
+* `trackerBoundsHalfLength = 960` 
+In `RecoVertex/VertexTools/interface/SequencialVertexFitter.h` and `RecoVertex/KalmanVertexFit/src/SingleTrackVertexConstraint.cc`.
 
-### Input variables for running ###
+## Settings for running ##
 
-* Process number: corresponding to file numbers in the dataset
-* Dataset type: as specified in your `userparams.json`
-* Dataset name: as specified in your `userparams.json`
-* Number of files: How many files to use per run (condor job) - which files are dependent on the process number
-* Number of events: Number of events to run over - 0 = all events in the files
+Main settings while running is set in `LLPNanoAOD/LLPnanoAOD/test/run_LLPnanoAOD_config.py` with parameters:
 
-### Locally bash script ###
+* `output_base_path`: base path to output files
+* `nEvents`: number of files to run on, if `nEvents = 0` it will run over all events in the file
+* `filesPerJob`: number of files to run on per job
+* `maxJobs`: max number of jobs, if `maxJobs = 0` it will create as many jobs as needed for number of dataset files
+* `run_mini_and_nano`: if `run_mini_and_nano = True` it will first run `LLPminiAOD_cfg.py` (with necessary keep-statements) and then `LLPnanoAOD_cfg.py`, input should be AOD-files. if `run_mini_and_nano = False` it will only run `LLPnanoAOD_cfg.py`, input should be miniAOD-files.
+* `save_mini`: if `run_mini_and_nano = True` you can decide if you want to save the LLPminiAOD-files after finishing running `LLPnanoAOD_cfg.py`
+* `LLPcollections`: list of string with all extra LLPnanoAOD collections you would like to include. The options are:
+  * `DSAMuon`: include DSAMuon collection, extended Muon collection and vertices collections: PatVertex, PatDSAVertex, DSAVertex
+  * `BS`: include BeamSpot collection
+  * `GenPart`: include extended GenPart collection
+  * `DGLMuon`: include DGLMuon collection and vertices collections: PatDGLVertex, DGLDSAVertex, DGLVertex
 
-`./run_LLPNanoAOD.sh {process number} {dataset type} {dataset name} {number of files per job} {number of events}`
+* `datasets`: dictionary of input datasets in the format: `( output_dataset_path : dataset_name )`
+  * `output_dataset_path`: this means that the complete output will be `output_base_path/output_dataset_path/`
+  * `dataset_name`:
+    * for DAS datasets: `dataset_name` = complete DAS dataset name
+    * for local Datasets: `dataset_name` = path to directory with root-files
+  Example for 2018 SingleMuon dataset A:
+  ```
+  datasets = (
+    ("data2018/SingleMuonA", "/SingleMuon/Run2018A-12Nov2019_UL2018-v5/AOD"),
+  )
+  ```
 
-### Condor ###
+## Run locally ##
 
-Example of condor submission found in `run_LLPNanoAOD.sub` for 2018 TTToSemiLeptonic dataset. General example is found in the template `run_LLPNanoAOD.sub.template`.
+To run locally use the run script `run_LLPnanoAOD.py` and the config file `run_LLPnanoAOD_config.py`:
+
+Run from `${CMMSW_base}/src`:
+```
+python LLPNanoAOD/LLPnanoAOD/test/run_LLPnanoAOD.py --config LLPNanoAOD/LLPnanoAOD/test/run_LLPnanoAOD_config.py --local
+```
+
+Make sure to update the config `run_LLPnanoAOD_config.py` with all settings needed to run on your computer.
+
+## Run on condor ##
+
+Run from `${CMMSW_base}/src`:
+```
+python LLPNanoAOD/LLPnanoAOD/test/run_LLPnanoAOD.py --config LLPNanoAOD/LLPnanoAOD/test/run_LLPnanoAOD_config.py --condor
+```
+
+### Parameter options: ###
+* `--job_flavour`: job flavour for condor job. Use help to see all flavour options. Default: "longlunch" = 2h
+* `--run_time`: RequestRunTime for condor. If run_time is set it will overwrite the job_flavour input. Default is 0 - uses job_flavour.
+* `--dry`: for condor dry run without submission
+
+Make sure to update the config `run_LLPnanoAOD_config.py` with all settings needed to run on your computer.

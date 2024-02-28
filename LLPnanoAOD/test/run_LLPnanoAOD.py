@@ -15,8 +15,6 @@ def get_args():
     
   parser.add_argument("--local", action="store_true", default=False, help="run locally")
   parser.add_argument("--condor", action="store_true", default=False, help="run on condor")
-
-  parser.add_argument("--app", type=str, default="run_LLPnanoAOD.py", help="Python or executable app to run. Default: run_LLPnanoAOD.py")
   
   parser.add_argument(
     "--job_flavour", 
@@ -184,7 +182,8 @@ def setup_run_files(config):
   voms_proxy_path = os.popen("voms-proxy-info -path").read().strip().replace("/", "\/")    
   os.system("cp " + voms_proxy_path + " voms_proxy")
   
-  home_path = config.home_path.replace("/", "\/")
+  home_path = os.path.expanduser("~")
+  home_path = home_path.replace("/", "\/")
   os.system("sed -i 's/<home_path>/{}/g' {}".format(home_path,condor_run_script_name))
   dataset = config.dataset.replace("/", "\/")
   os.system("sed -i 's/<dataset>/{}/g' {}".format(dataset,condor_run_script_name))

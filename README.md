@@ -3,19 +3,28 @@
 LLPNanoAOD is an extension of NanoAOD with parameters useful for analyses with Long-Lived Particles (LLP).
 
 LLPNanoAOD includes variables for:
-* DisplacedStandAloneMuons (DSAMuon)
-* BeamSpot (BS)
-* Extended Muon viarables (Muon collection)
-* Muon vertices: 
+* #### DisplacedStandAloneMuons (DSAMuon) ####
+  from reco::Track displacedStandAloneMuon AOD/miniAOD collections
+* #### BeamSpot (BS) ####
+  including vertex-type variables
+* #### Extended Muon variables (Muon collection) ####
+  including impact parameters, indexing, matching to DSAMuon collection
+* #### Muon vertices ####
+  Muon vertex fits for two muons in combinations:
   * PatMuonVetex = between two Pat muons
   * PatDSAMuonVertex = between one Pat muon and one DSA muon
   * DSAMuonVertex = between two DSA muons
-* DisplacedGlobalMuons (DGLMuon)
-* Muon vertices for DGL muons:
+* #### DisplacedGlobalMuons (DGLMuon) ####
+  from reco::Track displacedGlobalMuon AOD/miniAOD collections
+* #### Muon vertices for DGL muons ####
+  Muon vertex fits for two muons, with at least one DGL muon, in combinations:
   * PatDGLMuonVetex = between one Pat muon and one DGL muon
   * DGLDSAMuonVertex = between one DGL muon and one DSA muon
   * DGLMuonVertex = between two DGL muons
-* Extended GenPart variables (GenPart collection)
+* #### Extended GenPart variables (GenPart collection) ####
+  including displacent variables vx, vy, vz
+
+A complete list of all branches can be found in `LLPnanoAOD_branches.txt`.
 
 ## Setup ##
 
@@ -46,7 +55,8 @@ scram b -j
 
 This will also extend the values of the `trackerBoundsRadius` and `trackerBoundsHalfLength` to:
 * `trackerBoundsRadius = 740` 
-* `trackerBoundsHalfLength = 960` 
+* `trackerBoundsHalfLength = 960`
+  
 In `RecoVertex/VertexTools/interface/SequencialVertexFitter.h` and `RecoVertex/KalmanVertexFit/src/SingleTrackVertexConstraint.cc`.
 
 ## Settings for running ##

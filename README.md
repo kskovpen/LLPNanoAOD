@@ -39,7 +39,7 @@ git clone git@github.com:kerstinlovisa/LLPNanoAOD.git
 scram b -j
 ```
 
-Due to a bug to determine the charge of high pT tracks, corrections are made to RecoVertex scripts based on later (corrected) CMMSW releases:
+Due to a bug to determine the charge of high pT tracks, corrections are made to RecoVertex scripts, based on PR to fix the bug: https://github.com/cms-sw/cmssw/pull/40479 for CMSSW_13_0_X
 ```
 git cms-addpkg RecoVertex/KalmanVertexFit
 git cms-addpkg RecoVertex/VertexTools

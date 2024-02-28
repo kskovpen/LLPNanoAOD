@@ -2,7 +2,6 @@
 *.log
 *.out
 *.err
-*.txt
 *.pyc
 
 tmp/*

@@ -1,0 +1,186 @@
+Complete list of all branches included for all new collections in LLPnanoAOD:
+
+Collection: DSAMuon
+idx:                assigned index for DSA muon, same indexing is applied to the MuonVertex collections
+pt:   
+ptErr:    
+eta:    
+etaErr:   
+phi:                
+phiErr:             
+charge:             
+dxy:                transverse impact parameter, with default nanoAOD computation
+dz:                 z impact parameter, with default nanoAOD computation
+trkNumPlanes:       number of muon stations with valid hits
+trkNumHits:         number of valid muon hits
+trkNumDTHits:       number of valid muon DT hits
+trkNumCSCHits:      number of valid muon CSC hits
+normChi2:           normalized chi2
+outerEta:           eta of the outermost track of the muon
+outerPhi:           phi of the outermost track of the muon
+dzPV:               z impact parameter from primary vertex
+dzPVErr:            uncertainty of z impact parameter from primary vertex
+dxyPVTraj:          transverse impact parameter from primary vertex, using track trajectory computations
+dxyPVTrajErr:       uncertainty of transverse impact parameter from primary vertex
+dxyPVSigned:        signed transverse impact parameter from primary vertex, using IPTools
+dxyPVSignedErr:     uncertainty of signed transverse impact parameter from primary vertex
+ip3DPVSigned:       signed 3D impact parameter, using IPTools
+ip3DPVSignedErr:    uncertainty of signed 3D impact parameter 
+dxyBS:              transverse impact parameter from the beamspot
+dxyBSErr:           uncertainty of transverse impact parameter from the beamspot
+dzBS:               z impact parameter from the beamspot
+dzBSErr:            uncertainty of z impact parameter from the beamspot
+dxyBSTraj:          z impact parameter from beamspot, using track trajectory computations
+dxyBSTrajErr:       uncertainty of z impact parameter from beamspot
+dxyBSSigned:        signed transverse impact parameter from the beamspot, using IPTools
+dxyBSSignedErr:     uncertainty of signed transverse impact parameter from the beamspot
+ip3DBSSigned:       signed 3D impact parameter from the beamspot, using IPTools
+ip3DBSSignedErr:    uncertainty of signed 3D impact parameter from the beamspot
+displacedID:        displaced muons ID as recommended by the muon POG
+muonMatch1:         number of segment/hit matches between the DSA muon and the (standard) muon with the most number of matched hits
+muonMatch1idx:      muon index of the (standard) muon with the most number of matched hits
+muonMatch2:         number of segment/hit matches between the DSA muon and the (standard) muon with the second most number of matched hits
+muonMatch2idx:      muon index of the (standard) muon with the second most number of matched hits
+muonMatch3:         number of segment/hit matches between the DSA muon and the (standard) muon with the third most number of matched hits
+muonMatch3idx:      muon index of the (standard) muon with the third most number of matched hits
+muonMatch4:         number of segment/hit matches between the DSA muon and the (standard) muon with the forth most number of matched hits
+muonMatch4idx:      muon index of the (standard) muon with the forth most number of matched hits
+muonMatch5:         number of segment/hit matches between the DSA muon and the (standard) muon with the fifth most number of matched hits
+muonMatch5idx:      muon index of the (standard) muon with the fifth most number of matched hits
+
+
+Collection: DGLMuon
+idx:                assigned index for DGL muon, same indexing is applied to the MuonVertex collections
+pt:   
+ptErr:    
+eta:    
+etaErr:   
+phi:                
+phiErr:             
+charge:             
+dxy:                transverse impact parameter, with default nanoAOD computation
+dz:                 z impact parameter, with default nanoAOD computation
+trkNumPlanes:       number of muon stations with valid hits
+trkNumHits:         number of valid muon hits
+trkNumDTHits:       number of valid muon DT hits
+trkNumCSCHits:      number of valid muon CSC hits
+normChi2:           normalized chi2
+outerEta:           eta of the outermost track of the muon
+outerPhi:           phi of the outermost track of the muon
+dzPV:               z impact parameter from primary vertex
+dzPVErr:            uncertainty of z impact parameter from primary vertex
+dxyPVTraj:          transverse impact parameter from primary vertex, using track trajectory computations
+dxyPVTrajErr:       uncertainty of transverse impact parameter from primary vertex
+dxyPVSigned:        signed transverse impact parameter from primary vertex, using IPTools
+dxyPVSignedErr:     uncertainty of signed transverse impact parameter from primary vertex
+ip3DPVSigned:       signed 3D impact parameter, using IPTools
+ip3DPVSignedErr:    uncertainty of signed 3D impact parameter 
+dxyBS:              transverse impact parameter from the beamspot
+dxyBSErr:           uncertainty of  transverse impact parameter from the beamspot
+dzBS:               z impact parameter from the beamspot
+dzBSErr:            uncertainty of  z impact parameter from the beamspot
+dxyBSTraj:          z impact parameter from beamspot, using track trajectory computations
+dxyBSTrajErr:       uncertainty of  z impact parameter from beamspot
+dxyBSSigned:        signed transverse impact parameter from the beamspot, using IPTools
+dxyBSSignedErr:     uncertainty of  signed transverse impact parameter from the beamspot
+ip3DBSSigned:       signed 3D impact parameter from the beamspot, using IPTools
+ip3DBSSignedErr:    uncertainty of  signed 3D impact parameter from the beamspot
+displacedID:        displaced muons ID as recommended by the muon POG
+muonMatch1:         number of segment/hit matches between the DGL muon and the (standard) muon with the most number of matched hits
+muonMatch1idx:      muon index of the (standard) muon with the most number of matched hits
+muonMatch2:         number of segment/hit matches between the DGL muon and the (standard) muon with the second most number of matched hits
+muonMatch2idx:      muon index of the (standard) muon with the second most number of matched hits
+muonMatch3:         number of segment/hit matches between the DGL muon and the (standard) muon with the third most number of matched hits
+muonMatch3idx:      muon index of the (standard) muon with the third most number of matched hits
+muonMatch4:         number of segment/hit matches between the DGL muon and the (standard) muon with the forth most number of matched hits
+muonMatch4idx:      muon index of the (standard) muon with the forth most number of matched hits
+muonMatch5:         number of segment/hit matches between the DGL muon and the (standard) muon with the fifth most number of matched hits
+muonMatch5idx:      muon index of the (standard) muon with the fifth most number of matched hits
+
+
+Collection: Muon (extended)
+idx:                assigned index for muon, same indexing is applied to the MuonVertex collections
+trkPt:              transverse momentum of muon track
+trkPtErr:           uncertainty of transverse momentum of muon track
+dxy:                transverse impact parameter, with default nanoAOD computation
+dz:                 z impact parameter, with default nanoAOD computation
+trkNumPlanes:       number of muon stations with valid hits
+trkNumHits:         number of valid muon hits
+trkNumDTHits:       number of valid muon DT hits
+trkNumCSCHits:      number of valid muon CSC hits
+trkNumPixelHits:    number of valied pixel hits
+trkNumTrkLayers:    number of valied tracker layers
+normChi2:           normalized chi2
+outerEta:           eta of the outermost track of the muon
+outerPhi:           phi of the outermost track of the muon
+dzPV:               z impact parameter from primary vertex
+dzPVErr:            uncertainty of z impact parameter from primary vertex
+dxyPVTraj:          transverse impact parameter from primary vertex, using track trajectory computations
+dxyPVTrajErr:       uncertainty of transverse impact parameter from primary vertex
+dxyPVSigned:        signed transverse impact parameter from primary vertex, using IPTools
+dxyPVSignedErr:     uncertainty of signed transverse impact parameter from primary vertex
+ip3DPVSigned:       signed 3D impact parameter, using IPTools
+ip3DPVSignedErr:    uncertainty of signed 3D impact parameter 
+dxyBS:              transverse impact parameter from the beamspot
+dxyBSErr:           uncertainty of transverse impact parameter from the beamspot
+dzBS:               z impact parameter from the beamspot
+dzBSErr:            uncertainty of z impact parameter from the beamspot
+dxyBSTraj:          z impact parameter from beamspot, using track trajectory computations
+dxyBSTrajErr:       uncertainty of z impact parameter from beamspot
+dxyBSSigned:        signed transverse impact parameter from the beamspot, using IPTools
+dxyBSSignedErr:     uncertainty of signed transverse impact parameter from the beamspot
+ip3DBSSigned:       signed 3D impact parameter from the beamspot, using IPTools
+ip3DBSSignedErr:    uncertainty of signed 3D impact parameter from the beamspot
+displacedID:        displaced muons ID as recommended by the muon POG
+dsaMatch1:          number of segment/hit matches between the muon and the DSA muon with the most number of matched hits
+dsaMatch1idx:       muon index of the DSA muon with the most number of matched hits
+dsaMatch2:          number of segment/hit matches between the muon and the DSA muon with the second most number of matched hits
+dsaMatch2idx:       muon index of the DSA muon with the second most number of matched hits
+dsaMatch3:          number of segment/hit matches between the muon and the DSA muon with the third most number of matched hits
+dsaMatch3idx:       muon index of the DSA muon with the third most number of matched hits
+dsaMatch4:          number of segment/hit matches between the muon and the DSA muon with the forth most number of matched hits
+dsaMatch4idx:       muon index of the DSA muon with the forth most number of matched hits
+dsaMatch5:          number of segment/hit matches between the muon and the DSA muon with the fifth most number of matched hits
+dsaMatch5idx:       muon index of the DSA muon with the fifth most number of matched hits
+
+
+Collection: PatMuonVertex, PatDSAMuonVertex, DSAMuonVertex, PatDGLMuonVertex, DGLDSAMuonVertex, DGLMuonVertex
+chi2:                         chi2 of vertex fit
+vx:                           vertex positon x
+vy:                           vertex positon y
+vz:                           vertex positon z
+vxy:                          vertex transverse positon
+vxySigma:                     uncertainty of vertex transverse positon
+dR:                           Delta R between the two muons
+idx1:                         muon index of muon 1
+idx2:                         muon index of muon 2
+isDSAMuon1:                   if muon 1 is from the DSAMuon collection
+isDSAMuon2:                   if muon 2 is from the DSAMuon collection
+isDGLMuon1:                   if muon 1 is from the DGLMuon collection
+isDGLMuon2:                   if muon 2 is from the DGLMuon collection
+displacedTrackIso03Muon1:     displaced tracker isolation as recommended by Muon POG for muon 2, with DeltaR < 0.4
+displacedTrackIso04Muon1:     displaced tracker isolation as recommended by Muon POG for muon 2, with DeltaR < 0.4
+displacedTrackIso03Muon2:     displaced tracker isolation as recommended by Muon POG for muon 2, with DeltaR < 0.4
+displacedTrackIso04Muon2:     displaced tracker isolation as recommended by Muon POG for muon 2, with DeltaR < 0.4
+displacedTrackIso03Dimuon1:   displaced tracker isolation as recommended by Muon POG for muon 1, with DeltaR < 0.3, excluding the track pT of muon 2
+displacedTrackIso04Dimuon1:   displaced tracker isolation as recommended by Muon POG for muon 1, with DeltaR < 0.4, excluding the track pT of muon 2
+displacedTrackIso03Dimuon2:   displaced tracker isolation as recommended by Muon POG for muon 2, with DeltaR < 0.3, excluding the track pT of muon 1
+displacedTrackIso04Dimuon2:   displaced tracker isolation as recommended by Muon POG for muon 2, with DeltaR < 0.4, excluding the track pT of muon 1
+
+
+Collection: BS
+x:          beamspot positon x
+y:          beamspot positon y
+z:          beamspot positon z
+ndof:       vertex function: degrees of freedom
+chi2:       vertex function:  chi2 for beamspot
+ntracks:    vertex function: number of tracks
+
+
+Collection: GenPart (extended)
+vx:         vertex positon x
+vy:         vertex positon y
+vz:         vertex positon z
+px:         momentum in x direction
+py:         momentum in y direction
+pz:         momentum in z direction

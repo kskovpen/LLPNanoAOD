@@ -50,7 +50,12 @@ class DSAMuonTableProducer : public edm::global::EDProducer<> {
     void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
     bool passesDisplacedID(const reco::Track& dsaMuon) const;
-    int getMatches(const pat::Muon& muon, const reco::Track& dsaMuon, const float minPositionDiff) const;
+    int getMatches(const pat::Muon& muon, const reco::Track& dsaMuon, float minPositionDiff=1e-6) const;
+    int getDTMatches(const pat::Muon& muon, const reco::Track& dsaMuon, float minPositionDiff=1e-6) const;
+    int getCSCMatches(const pat::Muon& muon, const reco::Track& dsaMuon, float minPositionDiff=1e-6) const;
+    int getTotSegments(const reco::Track& dsaMuon) const;
+    int getDTSegments(const reco::Track& dsaMuon) const;
+    int getCSCSegments(const reco::Track& dsaMuon) const;
 
     edm::EDGetTokenT<std::vector<reco::Track>> dsaMuonTag_;
     edm::EDGetTokenT<std::vector<pat::Muon>> muonTag_;
@@ -96,6 +101,12 @@ void DSAMuonTableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm:
   std::vector<float> displacedId;
   std::vector<std::vector<float>> nMatchesPerMuon;
   std::vector<float> muonMatch1,muonMatch1idx,muonMatch2,muonMatch2idx,muonMatch3,muonMatch3idx,muonMatch4,muonMatch4idx,muonMatch5,muonMatch5idx;
+  std::vector<float> muonDTMatch1,muonDTMatch1idx,muonDTMatch2,muonDTMatch2idx,muonDTMatch3,muonDTMatch3idx;
+  std::vector<float> muonCSCMatch1,muonCSCMatch1idx,muonCSCMatch2,muonCSCMatch2idx,muonCSCMatch3,muonCSCMatch3idx;
+  std::vector<float> nSegments,nDTSegments,nCSCSegments;
+
+  std::vector<float> totPATmatches, totPATmatchesOS, totPATmatchesDisplID, totPATmatchesDisplIDOS, totLoosePATmatchesDisplID, totLoosePATmatchesDisplIDOS;
+  std::vector<float> LoosePATmatchesDisplIDOSpt, LoosePATmatchesDisplIDOSdsaDetID1, LoosePATmatchesDisplIDOSdsaDetID2, LoosePATmatchesDisplIDOSdsaDetID3;
 
   for(unsigned int i = 0; i < nDSAMuons; i++) {
 
@@ -158,17 +169,31 @@ void DSAMuonTableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm:
 
     // Assigning 5 best matches and corresponding muon indices
     std::vector<std::pair<float, float>> muonMatches(5, std::make_pair(-1.0,-1.0));
+    std::vector<std::pair<float, float>> muonDTMatches(5, std::make_pair(-1.0,-1.0));
+    std::vector<std::pair<float, float>> muonCSCMatches(5, std::make_pair(-1.0,-1.0));
     std::vector<float> nMuonMatches;
+    std::vector<float> nMuonDTMatches;
+    std::vector<float> nMuonCSCMatches;
     for (unsigned int j = 0; j < nMuons; j++){
       if (j > 4) break;
       const pat::Muon & muon = (*muonHandle)[j];
       // Muon-DSA Matches Table
       int nMatches = getMatches(muon, dsaMuon, minPositionDiffForMatching);
+      int nDTMatches = getDTMatches(muon, dsaMuon, minPositionDiffForMatching);
+      int nCSCMatches = getCSCMatches(muon, dsaMuon, minPositionDiffForMatching);
       muonMatches[j] = std::make_pair(nMatches, j);
+      muonDTMatches[j] = std::make_pair(nDTMatches, j);
+      muonCSCMatches[j] = std::make_pair(nCSCMatches, j);
       nMuonMatches.push_back(nMatches);
+      nMuonDTMatches.push_back(nDTMatches);
+      nMuonCSCMatches.push_back(nCSCMatches);
     }
     nMatchesPerMuon.push_back(nMuonMatches);
+    nMatchesPerMuon.push_back(nMuonDTMatches);
+    nMatchesPerMuon.push_back(nMuonCSCMatches);
     std::sort(muonMatches.rbegin(), muonMatches.rend());
+    std::sort(muonDTMatches.rbegin(), muonDTMatches.rend());
+    std::sort(muonCSCMatches.rbegin(), muonCSCMatches.rend());
     muonMatch1.push_back(muonMatches[0].first);
     muonMatch1idx.push_back(muonMatches[0].second);
     muonMatch2.push_back(muonMatches[1].first);
@@ -179,6 +204,23 @@ void DSAMuonTableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm:
     muonMatch4idx.push_back(muonMatches[3].second);
     muonMatch5.push_back(muonMatches[4].first);
     muonMatch5idx.push_back(muonMatches[4].second);
+
+    muonDTMatch1.push_back(muonDTMatches[0].first);
+    muonDTMatch1idx.push_back(muonDTMatches[0].second);
+    muonDTMatch2.push_back(muonDTMatches[1].first);
+    muonDTMatch2idx.push_back(muonDTMatches[1].second);
+    muonDTMatch3.push_back(muonDTMatches[2].first);
+    muonDTMatch3idx.push_back(muonDTMatches[2].second);
+    muonCSCMatch1.push_back(muonCSCMatches[0].first);
+    muonCSCMatch1idx.push_back(muonCSCMatches[0].second);
+    muonCSCMatch2.push_back(muonCSCMatches[1].first);
+    muonCSCMatch2idx.push_back(muonCSCMatches[1].second);
+    muonCSCMatch3.push_back(muonCSCMatches[2].first);
+    muonCSCMatch3idx.push_back(muonCSCMatches[2].second);
+
+    nSegments.push_back(getTotSegments(dsaMuon));
+    nDTSegments.push_back(getDTSegments(dsaMuon));
+    nCSCSegments.push_back(getCSCSegments(dsaMuon));
 
   }
 
@@ -243,6 +285,24 @@ void DSAMuonTableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm:
   dsaMuonTab->addColumn<float>("muonMatch5", muonMatch5, "",  nanoaod::FlatTable::FloatColumn);
   dsaMuonTab->addColumn<float>("muonMatch5idx", muonMatch5idx, "",  nanoaod::FlatTable::FloatColumn);
 
+  dsaMuonTab->addColumn<float>("muonDTMatch1", muonDTMatch1, "",  nanoaod::FlatTable::FloatColumn);
+  dsaMuonTab->addColumn<float>("muonDTMatch1idx", muonDTMatch1idx, "",  nanoaod::FlatTable::FloatColumn);
+  dsaMuonTab->addColumn<float>("muonDTMatch2", muonDTMatch2, "",  nanoaod::FlatTable::FloatColumn);
+  dsaMuonTab->addColumn<float>("muonDTMatch2idx", muonDTMatch2idx, "",  nanoaod::FlatTable::FloatColumn);
+  dsaMuonTab->addColumn<float>("muonDTMatch3", muonDTMatch3, "",  nanoaod::FlatTable::FloatColumn);
+  dsaMuonTab->addColumn<float>("muonDTMatch3idx", muonDTMatch3idx, "",  nanoaod::FlatTable::FloatColumn);
+
+  dsaMuonTab->addColumn<float>("muonCSCMatch1", muonCSCMatch1, "",  nanoaod::FlatTable::FloatColumn);
+  dsaMuonTab->addColumn<float>("muonCSCMatch1idx", muonCSCMatch1idx, "",  nanoaod::FlatTable::FloatColumn);
+  dsaMuonTab->addColumn<float>("muonCSCMatch2", muonCSCMatch2, "",  nanoaod::FlatTable::FloatColumn);
+  dsaMuonTab->addColumn<float>("muonCSCMatch2idx", muonCSCMatch2idx, "",  nanoaod::FlatTable::FloatColumn);
+  dsaMuonTab->addColumn<float>("muonCSCMatch3", muonCSCMatch3, "",  nanoaod::FlatTable::FloatColumn);
+  dsaMuonTab->addColumn<float>("muonCSCMatch3idx", muonCSCMatch3idx, "",  nanoaod::FlatTable::FloatColumn);
+
+  dsaMuonTab->addColumn<float>("nSegments", nSegments, "",  nanoaod::FlatTable::FloatColumn);
+  dsaMuonTab->addColumn<float>("nDTSegments", nDTSegments, "",  nanoaod::FlatTable::FloatColumn);
+  dsaMuonTab->addColumn<float>("nCSCSegments", nCSCSegments, "",  nanoaod::FlatTable::FloatColumn);
+
   iEvent.put(std::move(dsaMuonTab), "DSAMuon");
 }
 
@@ -261,11 +321,10 @@ bool DSAMuonTableProducer::passesDisplacedID(const reco::Track& dsaMuon) const {
   return false;
 }
 
-int DSAMuonTableProducer::getMatches(const pat::Muon& muon, const reco::Track& dsaMuon, const float minPositionDiff=1e-6) const {
+int DSAMuonTableProducer::getMatches(const pat::Muon& muon, const reco::Track& dsaMuon, float minPositionDiff) const {
 
   int nMatches = 0;
-  if (!(muon.isTrackerMuon() && muon::isGoodMuon(muon, muon::TrackerMuonArbitrated))) return -1;
-
+  
   for (auto& hit : dsaMuon.recHits()){
 
     if (!hit->isValid()) continue;
@@ -273,6 +332,36 @@ int DSAMuonTableProducer::getMatches(const pat::Muon& muon, const reco::Track& d
     if (id.det() != DetId::Muon) continue;
 
     if (id.subdetId() == MuonSubdetId::DT || id.subdetId() == MuonSubdetId::CSC){
+
+      for (auto& chamber : muon.matches()) {
+
+        if (chamber.id.rawId() != id.rawId()) continue;
+
+        for (auto& segment : chamber.segmentMatches) {
+          
+          if (fabs(segment.x - hit->localPosition().x()) < minPositionDiff &&
+              fabs(segment.y - hit->localPosition().y()) < minPositionDiff) {
+              nMatches++;
+              break;
+          }
+        }
+      }
+    }
+  }
+  return nMatches;
+}
+
+int DSAMuonTableProducer::getDTMatches(const pat::Muon& muon, const reco::Track& dsaMuon, float minPositionDiff) const {
+
+  int nMatches = 0;
+
+  for (auto& hit : dsaMuon.recHits()){
+
+    if (!hit->isValid()) continue;
+    DetId id = hit->geographicalId();
+    if (id.det() != DetId::Muon) continue;
+
+    if (id.subdetId() == MuonSubdetId::DT){
 
       for (auto& chamber : muon.matches()) {
 
@@ -290,6 +379,69 @@ int DSAMuonTableProducer::getMatches(const pat::Muon& muon, const reco::Track& d
     }
   }
   return nMatches;
+}
+
+int DSAMuonTableProducer::getCSCMatches(const pat::Muon& muon, const reco::Track& dsaMuon, float minPositionDiff) const {
+
+  int nMatches = 0;
+
+  for (auto& hit : dsaMuon.recHits()){
+
+    if (!hit->isValid()) continue;
+    DetId id = hit->geographicalId();
+    if (id.det() != DetId::Muon) continue;
+
+    if (id.subdetId() == MuonSubdetId::CSC){
+
+      for (auto& chamber : muon.matches()) {
+
+        if (chamber.id.rawId() != id.rawId()) continue;
+
+        for (auto& segment : chamber.segmentMatches) {
+
+          if (fabs(segment.x - hit->localPosition().x()) < minPositionDiff &&
+              fabs(segment.y - hit->localPosition().y()) < minPositionDiff) {
+              nMatches++;
+              break;
+          }
+        }
+      }
+    }
+  }
+  return nMatches;
+}
+
+int DSAMuonTableProducer::getTotSegments(const reco::Track& dsaMuon) const {
+  int nHits = 0;
+  for (auto& hit : dsaMuon.recHits()){
+    if (!hit->isValid()) continue;
+    DetId id = hit->geographicalId();
+    if (id.det() != DetId::Muon) continue;
+    if (id.subdetId() == MuonSubdetId::DT || id.subdetId() == MuonSubdetId::CSC) nHits++;
+  }
+  return nHits;
+}
+
+int DSAMuonTableProducer::getDTSegments(const reco::Track& dsaMuon) const {
+  int nHits = 0;
+  for (auto& hit : dsaMuon.recHits()){
+    if (!hit->isValid()) continue;
+    DetId id = hit->geographicalId();
+    if (id.det() != DetId::Muon) continue;
+    if (id.subdetId() == MuonSubdetId::DT) nHits++;
+  }
+  return nHits;
+}
+
+int DSAMuonTableProducer::getCSCSegments(const reco::Track& dsaMuon) const {
+  int nHits = 0;
+  for (auto& hit : dsaMuon.recHits()){
+    if (!hit->isValid()) continue;
+    DetId id = hit->geographicalId();
+    if (id.det() != DetId::Muon) continue;
+    if (id.subdetId() == MuonSubdetId::CSC) nHits++;
+  }
+  return nHits;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

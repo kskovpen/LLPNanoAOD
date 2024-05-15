@@ -14,43 +14,56 @@ from Configuration.Eras.Modifier_run2_nanoAOD_106Xv2_cff import run2_nanoAOD_106
 # Input arguments
 options = VarParsing('analysis')
 options.register('nEvents',
-                    '',
+                    1000,
                     VarParsing.multiplicity.singleton,
                     VarParsing.varType.int,
                     "Number of events to process"
                 )
 options.register('runOnData',
-                    '',
+                    False,
                     VarParsing.multiplicity.singleton,
                     VarParsing.varType.bool,
                     "If running on data"
                 )
 options.register('includeDSAMuon',
-                    '',
+                    False,
                     VarParsing.multiplicity.singleton,
                     VarParsing.varType.bool,
                     "Flag to include Displaced StandAlone muon information"
                 )
 options.register('includeBS',
-                    '',
+                    False,
                     VarParsing.multiplicity.singleton,
                     VarParsing.varType.bool,
                     "Flag to include BeamSpot information"
                 )
 options.register('includeGenPart',
-                    '',
+                    False,
                     VarParsing.multiplicity.singleton,
                     VarParsing.varType.bool,
                     "Flag to include extended GenPart information"
                 )
 options.register('includeDGLMuon',
-                    '',
+                    False,
                     VarParsing.multiplicity.singleton,
                     VarParsing.varType.bool,
                     "Flag to include Displaced GLobal Muon information"
                 )
+options.register('includeRefittedTracks',
+                    True,
+                    VarParsing.multiplicity.singleton,
+                    VarParsing.varType.bool,
+                    "Flag to include Refitted Tracks information of Muon Vertex fits"
+                )
+options.register('nThreads',
+                    1,
+                    VarParsing.multiplicity.singleton,
+                    VarParsing.varType.int,
+                    "Number of threads to use"
+                )
 options.parseArguments()
 
+runRefittedTracks_=options.includeRefittedTracks
 nevents = options.nEvents
 if nevents == 0:
     nevents=-1
@@ -79,6 +92,7 @@ process.load('PhysicsTools.NanoAOD.nano_cff')
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 100000  # Set reportEvery to control the frequency of report messages
 process.MessageLogger.threshold = cms.untracked.string('ERROR')  # Set the output threshold to ERROR
@@ -139,6 +153,7 @@ process.GlobalTag = globalTag
 
 
 # LLPnanoAOD custom producers
+from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi import *
 
 # DisplacedStandAlone (DSA) Muon table
 process.dSAMuonsTable = cms.EDProducer("DSAMuonTableProducer",
@@ -167,7 +182,18 @@ process.muonVertexTable = cms.EDProducer("MuonVertexTableProducer",
     dsaMuons=cms.InputTag("displacedStandAloneMuons"),
     patMuons=cms.InputTag("linkedObjects","muons"),
     beamspot=cms.InputTag("offlineBeamSpot"),
-    generalTracks=cms.InputTag("generalTracks")
+    generalTracks=cms.InputTag("generalTracks"),
+    primaryVertex=cms.InputTag("offlineSlimmedPrimaryVertices")
+    # runRefittedTracks=cms.bool(runRefittedTracks_)
+)
+# Vertex between two muons (pat-pat, pat-dgl or dgl-dgl)
+process.dGlMuonVertexTable = cms.EDProducer("MuonVertexTableProducer",
+    dsaMuons=cms.InputTag("displacedGlobalMuons"),
+    patMuons=cms.InputTag("linkedObjects","muons"),
+    beamspot=cms.InputTag("offlineBeamSpot"),
+    generalTracks=cms.InputTag("generalTracks"),
+    primaryVertex=cms.InputTag("offlineSlimmedPrimaryVertices")
+    # runRefittedTracks=cms.bool(runRefittedTracks_)
 )
 # LLPnanoAOD Muon extended table
 process.muonExtendedTable = cms.EDProducer("MuonExtendedTableProducer",
@@ -194,7 +220,7 @@ if options.includeDGLMuon:
     process.nanoAOD_step += process.dGlMuonVertexTable
 if options.includeBS:
     process.nanoAOD_step += process.beamSpotTable
-if options.includeGenPart:
+if options.includeGenPart and not options.runOnData:
     process.nanoAOD_step += process.genPartExtendedTable
 
 process.endjob_step = cms.EndPath(process.endOfProcess)
@@ -206,7 +232,7 @@ from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 
 #Setup FWK for multithreaded
-# process.options.numberOfThreads=cms.untracked.uint32(2)
+process.options.numberOfThreads=cms.untracked.uint32(options.nThreads)
 process.options.numberOfStreams=cms.untracked.uint32(0)
 process.options.numberOfConcurrentLuminosityBlocks=cms.untracked.uint32(1)
 

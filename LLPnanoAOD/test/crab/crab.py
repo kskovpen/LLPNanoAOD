@@ -147,13 +147,13 @@ def writeConfig(config, work_area):
     return cfgpath
 
 
-def createConfig(args, dataset):
+def createConfig(args, dataset, datasetname):
     from CRABClient.UserUtilities import config
     config = config()
 
     procname, vername, ext, isMC = parseDatasetName(dataset)
 
-    config.General.requestName = procname[:100 - len(ext)] + ext
+    config.General.requestName = datasetname+"_"+args.tag
     config.General.workArea = args.work_area
     config.General.transferOutputs = True
     config.General.transferLogs = False
@@ -166,13 +166,14 @@ def createConfig(args, dataset):
     config.JobType.maxMemoryMB = args.max_memory
     config.JobType.maxJobRuntimeMin = args.max_runtime_min
     runOnData = not isMC
-    config.JobType.pyCfgParams = ['nEvents=%s' % args.nEvents, 'includeDSAMuon=%s' % args.includeDSAMuon, 'includeBS=%s' % args.includeBS, 'includeGenPart=%s' % args.includeGenPart, 'includeDGLMuon=%s' % args.includeDGLMuon]
-    if args.set_input_dataset:
-        config.JobType.pyCfgParams.append('inputDataset=%s' % dataset)
-    if len(args.input_files) > 0:
-        config.JobType.inputFiles = args.input_files
 
-    config.Data.inputDBS = 'global'
+    configParams = ['nEvents=%s' % args.nEvents, 'runOnData=%s' % runOnData, 'nThreads=%s' % args.num_cores]
+    if 'LLPnanoAOD' in args.tag:
+        configParams.extend(['includeDSAMuon=%s' % args.includeDSAMuon, 'includeBS=%s' % args.includeBS, 'includeGenPart=%s' % args.includeGenPart, 'includeDGLMuon=%s' % args.includeDGLMuon])   
+
+    config.JobType.pyCfgParams = configParams
+
+    config.Data.inputDBS = args.input_DBS
     config.Data.inputDataset = dataset
     config.Data.splitting = args.splitting
     config.Data.unitsPerJob = args.units_per_job
@@ -182,6 +183,13 @@ def createConfig(args, dataset):
     config.Data.outputDatasetTag = args.tag + '_' + vername
     config.Data.allowNonValidInputDataset = True
     config.Data.outLFNDirBase = args.outputdir
+
+    if args.test:
+        config.Data.unitsPerJob = 1
+        config.Data.totalUnits = 1
+        config.JobType.pyCfgParams = ['nEvents=10', 'runOnData=%s' % runOnData, 'nThreads=%s' % args.num_cores]
+        config.Data.publication = False
+        config.General.workArea = args.work_area + '_test'
 
     # if not isMC and args.json:
     #     config.Data.lumiMask = args.json
@@ -205,7 +213,8 @@ def createConfig(args, dataset):
             config.Site.whitelist = ['T2_US_*'] + t2_sites
 
     # write config file
-    cfgpath = writeConfig(config, args.work_area)
+    work_area=args.work_area+'_test' if args.test else args.work_area
+    cfgpath = writeConfig(config, work_area)
     return config, cfgpath
 
 
@@ -531,6 +540,10 @@ def main():
                         default=2750, type=int,
                         help='Maximum job runtime (in minutes). Values above 2750 will be automatically changed to 2750 by CRAB. Default: %(default)d min'
                         )
+    parser.add_argument('--input-DBS',
+                        default='global',
+                        help='DBS URL for input dataset. Default: %(default)s'
+                        )
     parser.add_argument('--dryrun',
                         action='store_true', default=False,
                         help='Only print the commands but do not submit. Default: %(default)s'
@@ -603,6 +616,10 @@ def main():
                         action='store_true', default=False,
                         help='Include Displaced GLobal Muon collection in LLPnanoAOD. Default: %(default)s'
                         )
+    parser.add_argument('--test',
+                        action='store_true', default=False,
+                        help='Test submission: only 1 job with 10 events will be submitted per input dataset. Default: %(default)s'
+                        )
     args = parser.parse_args()
 
     if args.summary:
@@ -629,17 +646,23 @@ def main():
 
     submit_failed = []
     request_names = {}
+    input_datatier = '/AOD'
+    if(args.tag == 'LLPnanoAOD'):
+        input_datatier = '/MINIAOD'
+    if(args.input_DBS == 'phys03'):
+        input_datatier = '/USER'
     with open(args.inputfile) as inputfile:
         for l in inputfile:
             l = l.strip()
             if not l or l.startswith('#'):
                 continue
+            datasetname = [s for s in l.split() if '/AOD' not in s][0]
             dataset = [s for s in l.split() if '/AOD' in s][0]
-            cfg, cfgpath = createConfig(args, dataset)
+            cfg, cfgpath = createConfig(args, dataset, datasetname)
             if cfg.General.requestName in request_names:
-                request_names[cfg.General.requestName].append(dataset)
+                request_names[cfg.General.requestName].append(datasetname+"_"+args.tag)
             else:
-                request_names[cfg.General.requestName] = [dataset]
+                request_names[cfg.General.requestName] = [datasetname+"_"+args.tag]
             if args.dryrun:
                 print('-' * 50)
                 print(cfg)

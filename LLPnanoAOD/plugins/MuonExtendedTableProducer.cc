@@ -55,10 +55,6 @@ class MuonExtendedTableProducer : public edm::global::EDProducer<> {
 
     int getMatches(const pat::Muon& muon, const reco::Track& dsaMuon, const float minPositionDiff) const;
 
-    // float getTrackerIsolation(const std::vector<reco::Track>& generalTracks, const pat::Muon& muon,
-    //                           const reco::BeamSpot& beamspot, float maxDR = 0.3, float minDR = 0.01,
-    //                           float maxDz = 0.5, float maxDxy = 0.2) const;
-
     std::string name_;
     edm::EDGetTokenT<std::vector<pat::Muon>> muonTag_;
     edm::EDGetTokenT<std::vector<reco::Track>> dsaMuonTag_;
@@ -173,10 +169,11 @@ void MuonExtendedTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
 
     normChi2.push_back(track->normalizedChi2());
 
-    // if (track->extra().isNonnull() && track->extra().isAvailable() && track->outerOk()) {
-    outerEta[i] = track->outerEta();
-    outerPhi[i] = track->outerPhi();
-    // }
+    // Cannot get outer track for tracker muons
+    if (track->extra().isNonnull() && track->extra().isAvailable() && track->outerOk()) {
+      outerEta[i] = track->outerEta();
+      outerPhi[i] = track->outerPhi();
+    }
 
     if(muon.innerTrack().isNonnull() && muon.innerTrack().isAvailable()){
       innerVx[i] = muon.innerTrack()->vx();
@@ -211,7 +208,6 @@ void MuonExtendedTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
     dsaMatch4idx.push_back(dsaMatches[3].second);
     dsaMatch5.push_back(dsaMatches[4].first);
     dsaMatch5idx.push_back(dsaMatches[4].second);
-
   }
 
   auto tab  = std::make_unique<nanoaod::FlatTable>(nMuons, name_, false, true);
@@ -275,8 +271,6 @@ void MuonExtendedTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
 int MuonExtendedTableProducer::getMatches(const pat::Muon& muon, const reco::Track& dsaMuon, const float minPositionDiff=1e-6) const {
 
   int nMatches = 0;
-
-  if (!(muon.isTrackerMuon() && muon::isGoodMuon(muon, muon::TrackerMuonArbitrated))) return -1;
 
   for (auto& hit : dsaMuon.recHits()){
 

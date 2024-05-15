@@ -39,16 +39,20 @@ git clone git@github.com:kerstinlovisa/LLPNanoAOD.git
 scram b -j
 ```
 
-Due to a bug to determine the charge of high pT tracks, corrections are made to RecoVertex scripts based on later (corrected) CMMSW releases:
+Due to a bug to determine the charge of high pT tracks, corrections are made to RecoVertex scripts based on later (corrected) CMMSW releases.
+There is a an updated version of CheckHitPattern for later CMMSW releases that we want to use:
 ```
 git cms-addpkg RecoVertex/KalmanVertexFit
 git cms-addpkg RecoVertex/VertexTools
 git cms-addpkg RecoVertex/KinematicFitPrimitives
+git cms-addpkg PhysicsTools/RecoUtils
 
 cp LLPNanoAOD/RecoVertex_corrections/VertexTools/src/* RecoVertex/VertexTools/src/
 cp LLPNanoAOD/RecoVertex_corrections/VertexTools/interface/* RecoVertex/VertexTools/interface/
 cp LLPNanoAOD/RecoVertex_corrections/KalmanVertexFit/src/* RecoVertex/KalmanVertexFit/src/
 cp LLPNanoAOD/RecoVertex_corrections/KinematicFitPrimitives/src/* RecoVertex/KinematicFitPrimitives/src/
+cp LLPNanoAOD/PhysicsTools_corrections/RecoUtils/src/* PhysicsTools/RecoUtils/src/
+cp LLPNanoAOD/PhysicsTools_corrections/RecoUtils/interface/* PhysicsTools/RecoUtils/interface/
 
 scram b -j
 ```
@@ -91,7 +95,7 @@ Main settings while running is set in `LLPNanoAOD/LLPnanoAOD/test/run_LLPnanoAOD
 
 To run locally use the run script `run_LLPnanoAOD.py` and the config file `run_LLPnanoAOD_config.py`:
 
-Run from `${CMMSW_base}/src`:
+Run from `$CMMSW_BASE/src`:
 ```
 python LLPNanoAOD/LLPnanoAOD/test/run_LLPnanoAOD.py --config LLPNanoAOD/LLPnanoAOD/test/run_LLPnanoAOD_config.py --local
 ```
@@ -100,7 +104,7 @@ Make sure to update the config `run_LLPnanoAOD_config.py` with all settings need
 
 ## Run on condor ##
 
-Run from `${CMMSW_base}/src`:
+Run from `$CMMSW_BASE/src`:
 ```
 python LLPNanoAOD/LLPnanoAOD/test/run_LLPnanoAOD.py --config LLPNanoAOD/LLPnanoAOD/test/run_LLPnanoAOD_config.py --condor
 ```
@@ -111,3 +115,6 @@ python LLPNanoAOD/LLPnanoAOD/test/run_LLPnanoAOD.py --config LLPNanoAOD/LLPnanoA
 * `--dry`: for condor dry run without submission
 
 Make sure to update the config `run_LLPnanoAOD_config.py` with all settings needed to run on your computer.
+
+## Crab submission ##
+Crab submissions are also setup to store output on a tier2 site. See README in `LLPNanoAOD/LLPnanoAOD/test/crab` for more instructions.

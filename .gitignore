@@ -6,3 +6,5 @@
 
 tmp/*
 crab_projects/*
+LLPnanoAOD/test/crab/crab_projects/*
+LLPnanoAOD/test/crab_projects/*

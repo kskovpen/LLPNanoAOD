@@ -13,6 +13,8 @@ echo "Executing job number $job_number"
 home_path="<home_path>"
 export HOME=$home_path
 
+dataset=<dataset>
+
 inputFiles_path="<input_files_path>"
 all_files=()
 while IFS= read -r filename; do
@@ -24,11 +26,13 @@ outputPath="${output}_part-${job_number}.root"
 nEvents=<n_events>
 nFiles=<n_files>
 runOnData=<is_data>
+runOnDAS=<run_on_das>
 
 includeDSAMuon=<include_DSAMuon>
 includeBS=<include_BS>
 includeGenPart=<include_GenPart>
 includeDGLMuon=<include_DGLMuon>
+includeRefittedTracks=<include_refittedTracks>
 
 total_files=${#all_files[@]}
 
@@ -44,7 +48,12 @@ for ((i=0; i<$nFiles; i++)); do
           exit 1
         fi
       fi
-      input_path="root://xrootd-cms.infn.it/$filename"
+      if [[ $runOnDAS == "True" ]]; then
+        input_path="root://xrootd-cms.infn.it/$filename"
+        # input_path="root://cms-xrd-global.cern.ch/$filename"
+      else
+        input_path="file:$dataset/$filename"
+      fi
       filename_list+="$input_path,"
     fi
 done
@@ -53,8 +62,8 @@ filename_list=${filename_list%,}
 
 cd <work_dir>
 
-echo cmsRun run_LLPNanoAOD.py "inputFiles=$filename_list" "outputFile=$outputPath" "nEvents=$nEvents" "runOnData=$runOnData" "includeDSAMuon=$includeDSAMuon" "includeBS=$includeBS" "includeGenPart=$includeGenPart" "includeDGLMuon=$includeDGLMuon" 
-# cmsRun run_LLPNanoAOD.py $inputFiles "outputFile=$outputPath" "nEvents=$nEvents" "runOnData=$runOnData" "includeDSAMuon=$includeDSAMuon" "includeBS=$includeBS" "includeGenPart=$includeGenPart" "includeDGLMuon=$includeDGLMuon" 
+echo cmsRun $CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test/LLPnanoAOD_cfg.py "inputFiles=$filename_list" "outputFile=$outputPath" "nEvents=$nEvents" "runOnData=$runOnData" "includeDSAMuon=$includeDSAMuon" "includeBS=$includeBS" "includeGenPart=$includeGenPart" "includeDGLMuon=$includeDGLMuon" "includeRefittedTracks=$includeRefittedTracks" 
+cmsRun $CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test/LLPnanoAOD_cfg.py  "inputFiles=$filename_list" "outputFile=$outputPath" "nEvents=$nEvents" "runOnData=$runOnData" "includeDSAMuon=$includeDSAMuon" "includeBS=$includeBS" "includeGenPart=$includeGenPart" "includeDGLMuon=$includeDGLMuon" "includeRefittedTracks=$includeRefittedTracks" 
 
 echo "LLPNanoAOD file saved in: $outputPath"
 

@@ -15,7 +15,7 @@ from Configuration.ProcessModifiers.run2_miniAOD_UL_preSummer20_cff import run2_
 # Input arguments
 options = VarParsing('analysis')
 options.outputFile = 'output.root'
-options.inputFiles = 'root://cms-xrd-global.cern.ch///store/mc/RunIISummer20UL18RECO/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v2/00000/36720F3D-EF38-114C-A60D-14023726151B.root'
+options.inputFiles = 'root://cms-xrd-global.cern.ch///store/data/Run2018A/SingleMuon/AOD/12Nov2019_UL2018-v5/270000/D437BC65-B40B-1944-8DD0-9710C088B916.root'
 options.register('nEvents',
                     0,
                     VarParsing.multiplicity.singleton,
@@ -27,6 +27,12 @@ options.register('runOnData',
                     VarParsing.multiplicity.singleton,
                     VarParsing.varType.bool,
                     "If running on data"
+                )
+options.register('nThreads',
+                    1,
+                    VarParsing.multiplicity.singleton,
+                    VarParsing.varType.int,
+                    "Number of threads to use"
                 )
 options.parseArguments()
 
@@ -62,6 +68,10 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 100000  # Set reportEvery to control the frequency of report messages
 process.MessageLogger.threshold = cms.untracked.string('ERROR')  # Set the output threshold to ERROR
+
+# process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
+#     ignoreTotal = cms.untracked.int32(1)
+# )
 
 if options.runOnData:
     process.load('Configuration.StandardSequences.PAT_cff')
@@ -247,7 +257,7 @@ from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 
 #Setup FWK for multithreaded
-# process.options.numberOfThreads=cms.untracked.uint32(8)
+process.options.numberOfThreads=cms.untracked.uint32(options.nThreads)
 process.options.numberOfStreams=cms.untracked.uint32(0)
 process.options.numberOfConcurrentLuminosityBlocks=cms.untracked.uint32(1)
 

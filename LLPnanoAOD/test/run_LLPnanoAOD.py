@@ -68,12 +68,12 @@ def prepare_tmp_files(args):
   return tmp_config_path
   
 
-def get_dataset_files_list(dataset_name):
+def get_dataset_files_list(dataset_name, dbs_instance):
   das = True
   if dataset_name.startswith("/nfs/") or dataset_name.startswith("/afs/"):
     das = False
   if das:
-    das_command = "dasgoclient -query='file dataset=" + dataset_name + "'"
+    das_command = "dasgoclient -query='file dataset=" + dataset_name + " instance=" + dbs_instance + "'"
     print("\n\nExecuting ", das_command)
     files = os.popen(das_command).read().splitlines()
   else:
@@ -90,7 +90,7 @@ def create_condor_directories():
 
 
 def make_output_paths(config):
-  path = config.output_dir + "/LLPnanoAOD"
+  path = config.output_dir + "/LLPnanoAODv2"
   if not os.path.exists(path):
       os.makedirs(path)
   if config.run_mini_and_nano:
@@ -107,7 +107,7 @@ def is_dataset_from_das(datasetpath):
 
 def is_data(datasetpath):
   if is_dataset_from_das(datasetpath):
-    if not datasetpath.endswith("SIM"):
+    if not datasetpath.endswith("SIM") and not datasetpath.endswith("USER"):
       return True
   return False
 
@@ -168,7 +168,7 @@ def setup_run_files(config):
   os.system("chmod 700 " + condor_run_script_name)
   print("Stored run shell script at: " + condor_run_script_name)
   
-  dataset_files = get_dataset_files_list(config.dataset)
+  dataset_files = get_dataset_files_list(config.dataset, config.dbs_instance)
   n_jobs = math.ceil(len(dataset_files) / config.filesPerJob)
 
   with open(input_files_list_file_name, "w") as file:
@@ -176,7 +176,7 @@ def setup_run_files(config):
         file.write(input_file_path + "\n")
 
   dataset_name = os.path.basename(config.output_dir)
-  output_file = config.output_dir + "/LLPnanoAOD/" + dataset_name
+  output_file = config.output_dir + "/LLPnanoAODv2/" + dataset_name
   output_file = output_file.replace("/", "\/")
     
   voms_proxy_path = os.popen("voms-proxy-info -path").read().strip().replace("/", "\/")    
@@ -201,10 +201,12 @@ def setup_run_files(config):
   includeBS = True if "BS" in config.LLPcollections else False
   includeGenPart = True if "GenPart" in config.LLPcollections else False
   includeDGLMuon = True if "DGLMuon" in config.LLPcollections else False
+  includeRefittedTracks = True if "RefittedTracks" in config.LLPcollections else False
   os.system("sed -i 's/<include_DSAMuon>/{}/g' {}".format(includeDSAMuon,condor_run_script_name))
   os.system("sed -i 's/<include_BS>/{}/g' {}".format(includeBS,condor_run_script_name))
   os.system("sed -i 's/<include_GenPart>/{}/g' {}".format(includeGenPart,condor_run_script_name))
   os.system("sed -i 's/<include_DGLMuon>/{}/g' {}".format(includeDGLMuon,condor_run_script_name))
+  os.system("sed -i 's/<include_refittedTracks>/{}/g' {}".format(includeRefittedTracks,condor_run_script_name))
 
   workDir = os.getcwd().replace("/", "\/")
   os.system("sed -i 's/<work_dir>/{}/g' {}".format(workDir,condor_run_script_name))

@@ -39,6 +39,7 @@ includeDSAMuon=<include_DSAMuon>
 includeBS=<include_BS>
 includeGenPart=<include_GenPart>
 includeDGLMuon=<include_DGLMuon>
+includeRefittedTracks=<include_refittedTracks>
 
 saveLLPminiAOD=<save_LLPminiAOD>
 
@@ -57,7 +58,8 @@ for ((i=0; i<$nFiles; i++)); do
         fi
       fi
       if [[ $runOnDAS == "True" ]]; then
-        input_path="root://xrootd-cms.infn.it/$filename"
+        # input_path="root://xrootd-cms.infn.it/$filename"
+        input_path="root://cms-xrd-global.cern.ch/$filename"
       else
         input_path="file:$dataset/$filename"
       fi
@@ -71,7 +73,7 @@ cd <work_dir>
 
 cmsRun $CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test/LLPminiAOD_cfg.py "inputFiles=$filename_list" "outputFile=$LLPminiAOD_path" "nEvents=$nEvents" "runOnData=$runOnData"
 
-cmsRun $CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test/LLPnanoAOD_cfg.py "inputFiles=file:$LLPminiAOD_path" "outputFile=$outputPath" "nEvents=$nEvents" "runOnData=$runOnData" "includeDSAMuon=$includeDSAMuon" "includeBS=$includeBS" "includeGenPart=$includeGenPart" 
+cmsRun $CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test/LLPnanoAOD_cfg.py "inputFiles=file:$LLPminiAOD_path" "outputFile=$outputPath" "nEvents=$nEvents" "runOnData=$runOnData" "includeDSAMuon=$includeDSAMuon" "includeBS=$includeBS" "includeGenPart=$includeGenPart" "includeDGLMuon=$includeDGLMuon" "includeRefittedTracks=$includeRefittedTracks" 
 
 echo "LLPNanoAOD file saved in: $outputPath"
 if [[ $saveLLPminiAOD == "False" ]]; then

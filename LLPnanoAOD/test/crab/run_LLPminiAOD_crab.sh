@@ -18,10 +18,12 @@ runFile=LLPminiAOD_cfg.py
 
 source /cvmfs/cms.cern.ch/common/crab-setup.sh
 
-nCores=4
-maxMemory=$((1000 * $nCores))
+nCores=8
+maxMemory=$((500 * $nCores))
 maxRuntime=2750
-filePerJob=1
+# Setuo for FileBased splitting, 0 to automatically set lowest number of files per job for max total 10000 jobs
+filePerJob=0
+# LLPminiAOD version
 VERSION=1
 
 python $crabWorkspace/crab.py \
@@ -37,8 +39,8 @@ python $crabWorkspace/crab.py \
 --max-runtime-min $maxRuntime \
 --work-area $crabWorkspace/crab_projects/crab_${filename}_v$VERSION \
 --publication \
-# --test \
 # --dryrun \
+# --test \
 # --input-DBS 'phys03' \
 # --set-input-dataset \
 #--send-external \

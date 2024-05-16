@@ -28,6 +28,7 @@ Run LLPminiAOD crab submission with `run_LLPminiAOD_crab.sh` with an input file 
 Example:
 ```
 cd $CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test/crab
+source /cvmfs/cms.cern.ch/common/crab-setup.sh
 ./run_LLPminiAOD_crab.sh inputs/bkg_2018_AOD.conf
 ```
 ### Settings ####
@@ -35,7 +36,7 @@ Make sure to update the settings in `run_LLPminiAOD_crab.sh`:
 - `nCores`: number of cores to use
 - `maxMemory`: max number of memory calculated as: memory per core * `nCores`
 - `maxRuntime`: maximum run time
-- `filePerJob`: number of files to run per job for FileBased splitting - make sure to update for large datasets, max jobs is 10000
+- `filePerJob`: number of files to run per job for FileBased splitting - make sure to update for large datasets, max jobs is 10000 or set to 0 to automatically set smallest number of files for max 10000 jobs
 - `VERSION`: LLPminiAOD version - used for output tag
 - `--site`: Site where you have write permission
 - `-o`: output directory on site
@@ -57,6 +58,7 @@ Run LLPnanoAOD crab submission with `run_LLPnanoAOD_crab.sh` with an input file 
 Example:
 ```
 cd $CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test/crab
+source /cvmfs/cms.cern.ch/common/crab-setup.sh
 ./run_LLPnanoAOD_crab.sh inputs/bkg_2018_AOD.conf
 ```
 ### Settings ####

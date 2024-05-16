@@ -122,6 +122,15 @@ def getDatasetSiteInfo(dataset, retry=2):
             logger.info('Found %d sites for %s:\n  %s%s' % (len(sites), dataset, ','.join(sites), ',T1_US_FNAL' if on_fnal_disk else ''))
             return on_fnal_disk, sites
 
+def getTotalNumberOfFiles(args, dataset):
+    command = 'dasgoclient --query="file dataset=%s instance=prod/%s" | wc -l' % (dataset, args.input_DBS)
+    return int(subprocess.check_output(command, shell=True))
+
+def getSmallestNFiles(totalFiles):
+    nFiles = 1
+    while totalFiles / nFiles > 10000:
+        nFiles += 1
+    return nFiles
 
 def loadConfig(work_area, task_name):
     import os
@@ -179,6 +188,16 @@ def createConfig(args, dataset, datasetname):
     config.Data.unitsPerJob = args.units_per_job
     if args.max_units > 0:
         config.Data.totalUnits = args.max_units
+    if args.splitting == 'FileBased':
+        totalFiles = getTotalNumberOfFiles(args, dataset)
+        if args.units_per_job == 0:
+            nFiles = getSmallestNFiles(totalFiles)
+            config.Data.unitsPerJob = nFiles
+            print("Automatically set number of files per job to %d" % nFiles)
+        elif totalFiles / args.units_per_job > 10000:
+            print("Number of files is too large for FileBased splitting with %d files per job" % args.units_per_job) 
+            print("Change splitting method or units per job argument -n to a higher value or to 0 to automatically set number of files per job.")
+            return None, None
     config.Data.publication = args.publication
     config.Data.outputDatasetTag = args.tag + '_' + vername
     config.Data.allowNonValidInputDataset = True
@@ -485,11 +504,11 @@ def main():
                         help='Path to the CMSSW configuration file'
                         )
     parser.add_argument('-s', '--splitting',
-                        default='Automatic', choices=['Automatic', 'FileBased', 'LumiBased', 'EventAwareLumiBased'],
+                        default='FileBased', choices=['Automatic', 'FileBased', 'LumiBased', 'EventAwareLumiBased'],
                         help='Job splitting method. Default: %(default)s'
                         )
     parser.add_argument('-n', '--units-per-job',
-                        default=300, type=int,
+                        default=1, type=int,
                         help='Units per job. The meaning depends on the splitting. Recommended default numbers: (Automatic: 300 min, LumiBased:100, EventAwareLumiBased:100000) Default: %(default)d'
                         )
     parser.add_argument('--max-units',
@@ -647,7 +666,7 @@ def main():
     submit_failed = []
     request_names = {}
     input_datatier = '/AOD'
-    if(args.tag == 'LLPnanoAOD'):
+    if('LLPnanoAOD' in args.tag):
         input_datatier = '/MINIAOD'
     if(args.input_DBS == 'phys03'):
         input_datatier = '/USER'
@@ -656,9 +675,12 @@ def main():
             l = l.strip()
             if not l or l.startswith('#'):
                 continue
-            datasetname = [s for s in l.split() if '/AOD' not in s][0]
-            dataset = [s for s in l.split() if '/AOD' in s][0]
+            datasetname = [s for s in l.split() if input_datatier not in s][0]
+            dataset = [s for s in l.split() if input_datatier in s][0]
             cfg, cfgpath = createConfig(args, dataset, datasetname)
+            if(cfg == None or cfgpath == None):
+                print("Config is none. Skipping dataset %s" % dataset)
+                continue
             if cfg.General.requestName in request_names:
                 request_names[cfg.General.requestName].append(datasetname+"_"+args.tag)
             else:

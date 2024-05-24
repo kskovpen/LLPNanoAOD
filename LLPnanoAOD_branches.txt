@@ -47,7 +47,29 @@ muonMatch4:         number of segment/hit matches between the DSA muon and the (
 muonMatch4idx:      muon index of the (standard) muon with the forth most number of matched hits
 muonMatch5:         number of segment/hit matches between the DSA muon and the (standard) muon with the fifth most number of matched hits
 muonMatch5idx:      muon index of the (standard) muon with the fifth most number of matched hits
-
+muonCSCMatch1:      Same as muonMatch1, but for matching of only CSC segments
+muonCSCMatch1idx:      
+muonCSCMatch2:         
+muonCSCMatch2idx:      
+muonCSCMatch3:         
+muonCSCMatch3idx:      
+muonCSCMatch4:         
+muonCSCMatch4idx:      
+muonCSCMatch5:         
+muonCSCMatch5idx:      
+muonDTMatch1:         Same as muonMatch1, but for matching of only DT segments
+muonDTMatch1idx:      
+muonDTMatch2:         
+muonDTMatch2idx:      
+muonDTMatch3:         
+muonDTMatch3idx:      
+muonDTMatch4:         
+muonDTMatch4idx:      
+muonDTMatch5:         
+muonDTMatch5idx:      
+nSegments:            number of muon segments
+nDTSegments:          number of muon DT segments
+nCSCSegments:         number of muon CSC segments
 
 Collection: DGLMuon
 idx:                assigned index for DGL muon, same indexing is applied to the MuonVertex collections
@@ -111,8 +133,14 @@ trkNumCSCHits:      number of valid muon CSC hits
 trkNumPixelHits:    number of valied pixel hits
 trkNumTrkLayers:    number of valied tracker layers
 normChi2:           normalized chi2
-outerEta:           eta of the outermost track of the muon
-outerPhi:           phi of the outermost track of the muon
+outerEta:           eta of the outermost hit of the muon
+outerPhi:           phi of the outermost hit of the muon
+innerVx:            vx of the innermost hit of the muon
+innerVy:            vy of the innermost hit of the muon
+innerVz:            vz of the innermost hit of the muon
+innerPt:            pt of the innermost hit of the muon
+innerEta:           eta of the innermost hit of the muon
+innerPhi:           phi of the innermost hit of the muon
 dzPV:               z impact parameter from primary vertex
 dzPVErr:            uncertainty of z impact parameter from primary vertex
 dxyPVTraj:          transverse impact parameter from primary vertex, using track trajectory computations

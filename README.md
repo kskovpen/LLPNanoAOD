@@ -26,9 +26,9 @@ LLPNanoAOD includes variables for:
 
 A complete list of all branches can be found in `LLPnanoAOD_branches.txt`.
 
-## Setup ##
+## Setup Run 2 ##
 
-LLPNanoAOD has been setup for `CMSSW_10_6_29`.
+LLPNanoAOD has been setup for `CMSSW_10_6_29` for Run 2.
 
 ```
 cmsrel CMSSW_10_6_29
@@ -36,7 +36,6 @@ cd CMSSW_10_6_29/src
 cmsenv
 
 git clone git@github.com:kerstinlovisa/LLPNanoAOD.git
-scram b -j
 ```
 
 Due to a bug to determine the charge of high pT tracks, corrections are made to RecoVertex scripts, based on PR to fix the bug: https://github.com/cms-sw/cmssw/pull/40479 for CMSSW_13_0_X.
@@ -63,6 +62,32 @@ This will also extend the values of the `trackerBoundsRadius` and `trackerBounds
   
 In `RecoVertex/VertexTools/interface/SequencialVertexFitter.h` and `RecoVertex/KalmanVertexFit/src/SingleTrackVertexConstraint.cc`.
 
+## Setup Run 3 ##
+
+LLPNanoAOD should be setup for `CMSSW_13_0_13` for Run 3.
+
+```
+cmsrel CMSSW_13_0_13
+cd CMSSW_13_0_13/src
+cmsenv
+
+git clone git@github.com:kerstinlovisa/LLPNanoAOD.git
+
+git cms-addpkg RecoVertex/KalmanVertexFit
+git cms-addpkg RecoVertex/VertexTools
+git cms-addpkg PhysicsTools/RecoUtils
+
+cp LLPNanoAOD/RecoVertex_corrections/VertexTools/src/* RecoVertex/VertexTools/src/
+cp LLPNanoAOD/RecoVertex_corrections/VertexTools/interface/* RecoVertex/VertexTools/interface/
+cp LLPNanoAOD/RecoVertex_corrections/KalmanVertexFit/src/* RecoVertex/KalmanVertexFit/src/
+cp LLPNanoAOD/PhysicsTools_corrections/RecoUtils/src/* PhysicsTools/RecoUtils/src/
+cp LLPNanoAOD/PhysicsTools_corrections/RecoUtils/interface/* PhysicsTools/RecoUtils/interface/
+
+scram b -j
+```
+
+For CMSSW_13_0_13, the bug in RecoVertex/KinematicFitPrimitives/ is fixed so no need to add this package for Run 3.
+
 ## Settings for running ##
 
 Main settings while running is set in `LLPNanoAOD/LLPnanoAOD/test/run_LLPnanoAOD_config.py` with parameters:
@@ -78,6 +103,7 @@ Main settings while running is set in `LLPNanoAOD/LLPnanoAOD/test/run_LLPnanoAOD
   * `BS`: include BeamSpot collection
   * `GenPart`: include extended GenPart collection
   * `DGLMuon`: include DGLMuon collection and vertices collections: PatDGLVertex, DGLDSAVertex, DGLVertex
+* `year`: year is needed to determine global tag, set up for 2016, 2017, 2018 (string)
 
 * `datasets`: dictionary of input datasets in the format: `( output_dataset_path : dataset_name )`
   * `output_dataset_path`: this means that the complete output will be `output_base_path/output_dataset_path/`
@@ -90,6 +116,11 @@ Main settings while running is set in `LLPNanoAOD/LLPnanoAOD/test/run_LLPnanoAOD
     ("data2018/SingleMuonA", "/SingleMuon/Run2018A-12Nov2019_UL2018-v5/AOD"),
   )
   ```
+
+For **Run 3** the settings are very similar, see example in `LLPNanoAOD/LLPnanoAOD/test/run_LLPnanoAOD_Run3_config.py`. In addition to parameters above:
+* `year`: to accomodate for the different global tags, the year options are:
+  * for data: "2022ReReco", "2022Prompt", "2023"
+  * for MC: "2022PreEE", "2022PostEE", "2023PreBPix", "2023PostBPix"
 
 ## Run locally ##
 

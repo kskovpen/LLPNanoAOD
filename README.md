@@ -44,6 +44,7 @@ git cms-addpkg RecoVertex/KalmanVertexFit
 git cms-addpkg RecoVertex/VertexTools
 git cms-addpkg RecoVertex/KinematicFitPrimitives
 git cms-addpkg PhysicsTools/RecoUtils
+
 scram b -j
 ```
 
@@ -76,11 +77,11 @@ cmsrel CMSSW_13_0_13
 cd CMSSW_13_0_13/src
 cmsenv
 
-git clone git@github.com:kerstinlovisa/LLPNanoAOD.git
-
 git cms-addpkg RecoVertex/KalmanVertexFit
 git cms-addpkg RecoVertex/VertexTools
 git cms-addpkg PhysicsTools/RecoUtils
+
+git clone git@github.com:kerstinlovisa/LLPNanoAOD.git
 
 cp LLPNanoAOD/RecoVertex_corrections/VertexTools/src/* RecoVertex/VertexTools/src/
 cp LLPNanoAOD/RecoVertex_corrections/VertexTools/interface/* RecoVertex/VertexTools/interface/

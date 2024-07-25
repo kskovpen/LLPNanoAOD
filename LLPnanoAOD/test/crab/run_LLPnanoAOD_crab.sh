@@ -19,8 +19,8 @@ runFile=LLPnanoAOD_cfg.py
 source /cvmfs/cms.cern.ch/common/crab-setup.sh
 
 nCores=4
-maxMemory=$((2000 * $nCores))
-maxRuntime=2750
+maxMemory=$((1000 * $nCores))
+maxRuntime=3500
 filePerJob=1
 VERSION=1
 
@@ -48,8 +48,8 @@ python $crabWorkspace/crab.py \
 --input-DBS 'phys03' \
 --publication \
 --year $year \
---dryrun
-# --runOnData 
+--dryrun \
+# --runOnData \
 # --ignore_locality \
 # --whitelist "$whitelist" \
 # --runOnData \

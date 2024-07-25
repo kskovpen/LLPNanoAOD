@@ -8,8 +8,11 @@ import sys
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 
+from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
+from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 from Configuration.Eras.Modifier_run2_nanoAOD_106Xv2_cff import run2_nanoAOD_106Xv2
+
 
 # Input arguments
 options = VarParsing('analysis')
@@ -86,8 +89,27 @@ if options.runOnData:
     print('-- Running on data')
 else:
     print('-- Running on mc')
+print('Year: ', options.year)
 
-process = cms.Process('NANO',Run2_2018,run2_nanoAOD_106Xv2)
+# load process for correct year and data/MC
+if options.runOnData:
+    if options.year == "2016HIPM": 
+        process = cms.Process('NANO',Run2_2016_HIPM,run2_nanoAOD_106Xv2)
+    if options.year == "2016": #F no HIPM, G, H
+        process = cms.Process('NANO',Run2_2016,run2_nanoAOD_106Xv2)        
+    if options.year == "2017":
+        process = cms.Process('NANO',Run2_2017,run2_nanoAOD_106Xv2)    
+    if options.year == "2018":
+        process = cms.Process('NANO',Run2_2018,run2_nanoAOD_106Xv2)
+else:
+    if options.year == "2016":
+        process = cms.Process('NANO',Run2_2016,run2_nanoAOD_106Xv2)
+    if options.year == "2016PreVFP":
+        process = cms.Process('NANO',Run2_2016_HIPM,run2_nanoAOD_106Xv2)
+    if options.year == "2017":
+        process = cms.Process('NANO',Run2_2017,run2_nanoAOD_106Xv2)
+    if options.year == "2018":
+        process = cms.Process('NANO',Run2_2018,run2_nanoAOD_106Xv2)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -153,33 +175,21 @@ process.NANOAODSIMoutput = cms.OutputModule("NanoAODOutputModule",
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
 if options.runOnData:
-    if options.year == "2016":
+    if options.year == "2016" or options.year == "2016HIPM":
         globalTag = GlobalTag(process.GlobalTag, '106X_dataRun2_v36', '')
     if options.year == "2017":
         globalTag = GlobalTag(process.GlobalTag, '106X_dataRun2_v35', '')
     if options.year == "2018":
         globalTag = GlobalTag(process.GlobalTag, '106X_dataRun2_v35', '')
-    if options.year == "2022ReReco":
-        globalTag = GlobalTag(process.GlobalTag, '130X_dataRun3_v2', '')
-    if options.year == "2022Prompt":
-        globalTag = GlobalTag(process.GlobalTag, '130X_dataRun3_PromptAnalysis_v1', '')
-    if options.year == "2023":
-        globalTag = GlobalTag(process.GlobalTag, '130X_dataRun3_PromptAnalysis_v1', '')
 else:
     if options.year == "2016":
         globalTag = GlobalTag(process.GlobalTag, '106X_mcRun2_asymptotic_v17', '')
+    if options.year == "2016PreVFP":
+        globalTag = GlobalTag(process.GlobalTag, '106X_mcRun2_asymptotic_preVFP_v11', '')
     if options.year == "2017":
         globalTag = GlobalTag(process.GlobalTag, '106X_mc2017_realistic_v9', '')
     if options.year == "2018":
         globalTag = GlobalTag(process.GlobalTag, '106X_upgrade2018_realistic_v16_L1v1', '')
-    if options.year == "2022PreEE":
-        globalTag = GlobalTag(process.GlobalTag, '130X_mcRun3_2022_realistic_v5', '')
-    if options.year == "2022PostEE":
-        globalTag = GlobalTag(process.GlobalTag, '130X_mcRun3_2022_realistic_postEE_v6', '')
-    if options.year == "2023PreBPix":
-        globalTag = GlobalTag(process.GlobalTag, '130X_mcRun3_2023_realistic_v14', '')
-    if options.year == "2023PostBPix":
-        globalTag = GlobalTag(process.GlobalTag, '130X_mcRun3_2023_realistic_postBPix_v2', '')
 process.GlobalTag = globalTag
 
 

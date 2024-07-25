@@ -26,6 +26,10 @@ VERSION=1
 
 whitelist="['T2_*_*']"
 
+# Year options for MC: 2016, 2016PreVFP, 2017, 2018, 2022PreEE, 2022PostEE, 2023PreBPix, 2023PostBPix
+# Year options for data: 2016HIPM, 2016 (no HIPM), 2017, 2018, 2022ReReco, 2022Prompt, 2023
+year=2017
+
 python $crabWorkspace/crab.py \
 -p $configWorkspace/$runFile \
 --site T2_DE_DESY \
@@ -43,7 +47,8 @@ python $crabWorkspace/crab.py \
 --includeGenPart \
 --input-DBS 'phys03' \
 --publication \
-# --dryrun
+--year $year \
+--dryrun
 # --runOnData 
 # --ignore_locality \
 # --whitelist "$whitelist" \
@@ -51,4 +56,3 @@ python $crabWorkspace/crab.py \
 # --includeDGLMuon \
 # --set-input-dataset \
 #--send-external \
-# --year 2018

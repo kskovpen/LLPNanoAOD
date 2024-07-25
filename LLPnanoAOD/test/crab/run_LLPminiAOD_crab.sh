@@ -28,7 +28,7 @@ VERSION=1
 
 whitelist="['T2_US_*', 'T2_US_*', 'T2_CH_*', 'T2_IT_*', 'T1_IT_*']"
 
-# Year options for MC: 2016, 2017, 2018, 2022PreEE, 2022PostEE, 2023PreBPix, 2023PostBPix
+# Year options for MC: 2016, 2016PreVFP, 2017, 2018, 2022PreEE, 2022PostEE, 2023PreBPix, 2023PostBPix
 # Year options for data: 2016HIPM, 2016 (no HIPM), 2017, 2018, 2022ReReco, 2022Prompt, 2023
 year=2017
 

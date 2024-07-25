@@ -70,8 +70,10 @@ if options.runOnData:
     if options.year == "2018":
         process = cms.Process('PAT',Run2_2018,run2_miniAOD_UL_preSummer20)
 else:
-    if options.year == "2016" or options.year == "2016HIPM":
+    if options.year == "2016":
         process = cms.Process('PAT',Run2_2016,run2_miniAOD_UL)
+    if options.year == "2016PreVFP":
+        process = cms.Process('PAT',Run2_2016_HIPM,run2_miniAOD_UL)
     if options.year == "2017":
         process = cms.Process('PAT',Run2_2017,run2_miniAOD_UL)
     if options.year == "2018":
@@ -217,8 +219,10 @@ if options.runOnData:
     if options.year == "2018":
         globalTag = GlobalTag(process.GlobalTag, '106X_dataRun2_v33', '')
 else:
-    if options.year == "2016" or options.year == "2016HIPM":
+    if options.year == "2016":
         globalTag = GlobalTag(process.GlobalTag, '106X_mcRun2_asymptotic_v17', '')
+    if options.year == "2016PreVFP":
+        globalTag = GlobalTag(process.GlobalTag, '106X_mcRun2_asymptotic_preVFP_v11', '')
     if options.year == "2017":
         globalTag = GlobalTag(process.GlobalTag, '106X_mc2017_realistic_v9', '')
     if options.year == "2018":

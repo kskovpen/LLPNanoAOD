@@ -34,17 +34,22 @@ LLPNanoAOD has been setup for `CMSSW_10_6_29` for Run 2.
 cmsrel CMSSW_10_6_29
 cd CMSSW_10_6_29/src
 cmsenv
-
-git clone git@github.com:kerstinlovisa/LLPNanoAOD.git
 ```
 
 Due to a bug to determine the charge of high pT tracks, corrections are made to RecoVertex scripts, based on PR to fix the bug: https://github.com/cms-sw/cmssw/pull/40479 for CMSSW_13_0_X.
-There is a an updated version of CheckHitPattern for later CMMSW releases that we want to use:
+There is a an updated version of CheckHitPattern for later CMMSW releases that we want to use.
+First add the packages:
 ```
 git cms-addpkg RecoVertex/KalmanVertexFit
 git cms-addpkg RecoVertex/VertexTools
 git cms-addpkg RecoVertex/KinematicFitPrimitives
 git cms-addpkg PhysicsTools/RecoUtils
+scram b -j
+```
+
+Then clone LLPnanoAOD and update the files from the LLPNanoAOD/RecoVertex_corrections and LLPNanoAOD/PhysicsTools_corrections directories:
+```
+git clone git@github.com:kerstinlovisa/LLPNanoAOD.git
 
 cp LLPNanoAOD/RecoVertex_corrections/VertexTools/src/* RecoVertex/VertexTools/src/
 cp LLPNanoAOD/RecoVertex_corrections/VertexTools/interface/* RecoVertex/VertexTools/interface/

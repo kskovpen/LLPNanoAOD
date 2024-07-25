@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import print_function
 
+import ast
 import argparse
 import subprocess
 import os
@@ -63,6 +64,7 @@ def runCrabCommand(command, *args, **kwargs):
 def parseDatasetName(dataset):
     procname, ver, tier = dataset[1:].split('/')
     ext = ''
+    # standard input
     isMC = tier.endswith('SIM')
     if isMC:
         ver_pieces = ver.split('_')
@@ -82,7 +84,11 @@ def parseDatasetName(dataset):
     else:
         vername = ver
         ext = '_' + ver
-    return procname, vername, ext, isMC
+    # LLPminiAOD input
+    if "LLPminiAOD" in ver:
+        vername = "LLPminiAOD"
+        ext = '_LLPminiAOD'
+    return procname, vername, ext
 
 
 def getDatasetSiteInfo(dataset, retry=2):
@@ -160,7 +166,10 @@ def createConfig(args, dataset, datasetname):
     from CRABClient.UserUtilities import config
     config = config()
 
-    procname, vername, ext, isMC = parseDatasetName(dataset)
+    procname, vername, ext = parseDatasetName(dataset)
+    
+    isMC = 'SIM' in dataset or args.runOnData == False
+    runOnData = not isMC
 
     config.General.requestName = datasetname+"_"+args.tag
     config.General.workArea = args.work_area
@@ -174,9 +183,8 @@ def createConfig(args, dataset, datasetname):
     config.JobType.numCores = args.num_cores
     config.JobType.maxMemoryMB = args.max_memory
     config.JobType.maxJobRuntimeMin = args.max_runtime_min
-    runOnData = not isMC
 
-    configParams = ['nEvents=%s' % args.nEvents, 'runOnData=%s' % runOnData, 'nThreads=%s' % args.num_cores]
+    configParams = ['nEvents=%s' % args.nEvents, 'runOnData=%s' % runOnData, 'nThreads=%s' % args.num_cores, 'year=%s' % args.year]
     if 'LLPnanoAOD' in args.tag:
         configParams.extend(['includeDSAMuon=%s' % args.includeDSAMuon, 'includeBS=%s' % args.includeBS, 'includeGenPart=%s' % args.includeGenPart, 'includeDGLMuon=%s' % args.includeDGLMuon])   
 
@@ -202,6 +210,8 @@ def createConfig(args, dataset, datasetname):
     config.Data.outputDatasetTag = args.tag + '_' + vername
     config.Data.allowNonValidInputDataset = True
     config.Data.outLFNDirBase = args.outputdir
+    if args.ignore_locality:
+        config.Data.ignoreLocality = True 
 
     if args.test:
         config.Data.unitsPerJob = 1
@@ -218,6 +228,12 @@ def createConfig(args, dataset, datasetname):
     options = parseOptions(args)
     if 'siteblacklist' in options:
         config.Site.blacklist = options['siteblacklist'].split(',')
+
+    if args.whitelist !="":
+        print("whitelist: ", args.whitelist)
+        whitelist = ast.literal_eval(args.whitelist)
+        print("whitelist: ", whitelist)
+        config.Site.whitelist = whitelist
 
     if args.fnal:
         config.Data.ignoreLocality = True
@@ -638,6 +654,22 @@ def main():
     parser.add_argument('--test',
                         action='store_true', default=False,
                         help='Test submission: only 1 job with 10 events will be submitted per input dataset. Default: %(default)s'
+                        )
+    parser.add_argument('--runOnData',
+                        action='store_true', default=False,
+                        help='Bool for running on data. Default: %(default)s'
+                        )
+    parser.add_argument('--ignore_locality',
+                        action='store_true', default=False,
+                        help='Bool to include config setting config.Data.ignoreLocality = True. Default: %(default)s'
+                        )
+    parser.add_argument('--year',
+                        default="2018", 
+                        help='Year. Default: %(default)'
+                        )
+    parser.add_argument('--whitelist',
+                        default="",
+                        help='Site whitelist. Default: %(default)'
                         )
     args = parser.parse_args()
 

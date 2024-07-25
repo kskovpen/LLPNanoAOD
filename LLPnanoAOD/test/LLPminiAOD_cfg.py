@@ -8,7 +8,11 @@ import sys
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 
+from Configuration.Eras.Era_Run2_2016_HIPM_cff import Run2_2016_HIPM
+from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
+from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 from Configuration.ProcessModifiers.run2_miniAOD_UL_preSummer20_cff import run2_miniAOD_UL_preSummer20
 
@@ -34,6 +38,12 @@ options.register('nThreads',
                     VarParsing.varType.int,
                     "Number of threads to use"
                 )
+options.register('year',
+                    "2018",
+                    VarParsing.multiplicity.singleton,
+                    VarParsing.varType.string,
+                    "Year of the dataset"
+                )
 options.parseArguments()
 
 nevents = options.nEvents
@@ -41,18 +51,31 @@ if nevents == 0:
     nevents=-1
 
 print('Running run_LLPMiniAOD.py')
-# print('-- Input MiniAOD file: '+options.inputFiles)
 print('-- Output MiniAOD file: '+options.outputFile)
 print('-- Running on '+str(nevents)+' number of events')
 if options.runOnData:
     print('-- Running on data')
 else:
     print('-- Running on mc')
+print('-- Year: ' + options.year)
 
+# load process for correct year and data/MC
 if options.runOnData:
-    process = cms.Process('PAT',Run2_2018,run2_miniAOD_UL_preSummer20)
+    if options.year == "2016HIPM": 
+        process = cms.Process('PAT',Run2_2016_HIPM,run2_miniAOD_UL_preSummer20)
+    if options.year == "2016": #F no HIPM, G, H
+        process = cms.Process('PAT',Run2_2016,run2_miniAOD_UL_preSummer20)        
+    if options.year == "2017":
+        process = cms.Process('PAT',Run2_2017,run2_miniAOD_UL_preSummer20)    
+    if options.year == "2018":
+        process = cms.Process('PAT',Run2_2018,run2_miniAOD_UL_preSummer20)
 else:
-    process = cms.Process('PAT',Run2_2018,run2_miniAOD_UL)
+    if options.year == "2016" or options.year == "2016HIPM":
+        process = cms.Process('PAT',Run2_2016,run2_miniAOD_UL)
+    if options.year == "2017":
+        process = cms.Process('PAT',Run2_2017,run2_miniAOD_UL)
+    if options.year == "2018":
+        process = cms.Process('PAT',Run2_2018,run2_miniAOD_UL)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -176,43 +199,30 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
 
 # Additional output definition
 process.MINIAODSIMoutput.outputCommands.append('keep *_generalTracks_*_*')
-
-# process.MINIAODSIMoutput.outputCommands.append('keep *_displacedStandAloneMuons_*_*')
-# process.MINIAODSIMoutput.outputCommands.append('keep *_muonReducedTrackExtras_*_*')
-# process.MINIAODSIMoutput.outputCommands.append('keep *_globalMuons_*_*')
-# process.MINIAODSIMoutput.outputCommands.append('keep *_standAloneMuons_*_*')
-
-process.MINIAODSIMoutput.outputCommands.append('keep recoTrackExtras_muonReducedTrackExtras__RECO') # tested
-
+process.MINIAODSIMoutput.outputCommands.append('keep recoTrackExtras_muonReducedTrackExtras__RECO')
 process.MINIAODSIMoutput.outputCommands.append('keep recoTracks_displacedStandAloneMuons__RECO')
 process.MINIAODSIMoutput.outputCommands.append('keep recoTrackExtras_displacedStandAloneMuons__RECO') 
-process.MINIAODSIMoutput.outputCommands.append('keep TrackingRecHitsOwned_displacedStandAloneMuons__RECO') # tested
-
-process.MINIAODSIMoutput.outputCommands.append('keep recoTrackExtras_globalMuons__RECO') # tested
-
-process.MINIAODSIMoutput.outputCommands.append('keep recoTrackExtras_standAloneMuons__RECO') # tested
-
-### Excluded
-# process.MINIAODSIMoutput.outputCommands.append('keep *_displacedGlobalMuons_*_*')
-# process.MINIAODSIMoutput.outputCommands.append('keep *_refittedStandAloneMuons_*_*')
-# process.MINIAODSIMoutput.outputCommands.append('keep *_muons_*_*')
-# process.MINIAODSIMoutput.outputCommands.append('keep recoTracks_standAloneMuons_UpdatedAtVtx_RECO')
-# process.MINIAODSIMoutput.outputCommands.append('keep SiPixelClusteredmNewDetSetVector_muonReducedTrackExtras__RECO')
-# process.MINIAODSIMoutput.outputCommands.append('keep SiStripClusteredmNewDetSetVector_muonReducedTrackExtras__RECO')
-# process.MINIAODSIMoutput.outputCommands.append('keep recoTrackExtrasedmAssociation_muonReducedTrackExtras__RECO')
-# process.MINIAODSIMoutput.outputCommands.append('keep TrackingRecHitsOwned_muonReducedTrackExtras__RECO')
-# process.MINIAODSIMoutput.outputCommands.append('keep recoTracks_globalMuons__RECO')
-# process.MINIAODSIMoutput.outputCommands.append('keep recoTracks_standAloneMuons__RECO')
-# process.MINIAODSIMoutput.outputCommands.append('keep TrackingRecHitsOwned_standAloneMuons__RECO')
-
+process.MINIAODSIMoutput.outputCommands.append('keep TrackingRecHitsOwned_displacedStandAloneMuons__RECO')
+process.MINIAODSIMoutput.outputCommands.append('keep recoTrackExtras_globalMuons__RECO')
+process.MINIAODSIMoutput.outputCommands.append('keep recoTrackExtras_standAloneMuons__RECO')
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
 globalTag = ""
 if options.runOnData:
-    globalTag = GlobalTag(process.GlobalTag, '106X_dataRun2_v33', '')
+    if options.year == "2016" or options.year == "2016HIPM":
+        globalTag = GlobalTag(process.GlobalTag, '106X_dataRun2_v35', '')
+    if options.year == "2017":
+        globalTag = GlobalTag(process.GlobalTag, '106X_dataRun2_v33', '')
+    if options.year == "2018":
+        globalTag = GlobalTag(process.GlobalTag, '106X_dataRun2_v33', '')
 else:
-    globalTag = GlobalTag(process.GlobalTag, '106X_upgrade2018_realistic_v16_L1v1', '')
+    if options.year == "2016" or options.year == "2016HIPM":
+        globalTag = GlobalTag(process.GlobalTag, '106X_mcRun2_asymptotic_v17', '')
+    if options.year == "2017":
+        globalTag = GlobalTag(process.GlobalTag, '106X_mc2017_realistic_v9', '')
+    if options.year == "2018":
+        globalTag = GlobalTag(process.GlobalTag, '106X_upgrade2018_realistic_v16_L1v1', '')
 process.GlobalTag = globalTag
 
 

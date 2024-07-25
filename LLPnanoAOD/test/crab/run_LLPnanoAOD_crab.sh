@@ -19,10 +19,12 @@ runFile=LLPnanoAOD_cfg.py
 source /cvmfs/cms.cern.ch/common/crab-setup.sh
 
 nCores=4
-maxMemory=$((1000 * $nCores))
+maxMemory=$((2000 * $nCores))
 maxRuntime=2750
 filePerJob=1
 VERSION=1
+
+whitelist="['T2_*_*']"
 
 python $crabWorkspace/crab.py \
 -p $configWorkspace/$runFile \
@@ -41,7 +43,12 @@ python $crabWorkspace/crab.py \
 --includeGenPart \
 --input-DBS 'phys03' \
 --publication \
---dryrun
+# --dryrun
+# --runOnData 
+# --ignore_locality \
+# --whitelist "$whitelist" \
+# --runOnData \
 # --includeDGLMuon \
 # --set-input-dataset \
 #--send-external \
+# --year 2018

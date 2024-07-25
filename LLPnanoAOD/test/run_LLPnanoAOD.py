@@ -154,14 +154,21 @@ def setup_condor_submit_files(config, condor_run_script_name, hash_string, run_t
 def setup_run_files(config):
   hash_string = str(uuid.uuid4().hex[:6])
 
-  if config.run_mini_and_nano:
+  year = str(config.year)
+  run3 = True if "2022" in year or "2023" in year else False
+
+  if run3: 
+    condor_run_script_name = "tmp/run_LLPnanoAOD_Run3_%s.sh" % hash_string
+  elif config.run_mini_and_nano:
     condor_run_script_name = "tmp/run_LLPnanoAOD_from_AOD_%s.sh" % hash_string
   else:
     condor_run_script_name = "tmp/run_LLPnanoAOD_only_%s.sh" % hash_string
   input_files_list_file_name = "tmp/input_files_%s.txt" % hash_string
 
   
-  if config.run_mini_and_nano:
+  if run3:
+    os.system("cp LLPNanoAOD/LLPnanoAOD/test/templates/run_LLPnanoAOD_Run3.template.sh " + condor_run_script_name)
+  elif config.run_mini_and_nano:
     os.system("cp LLPNanoAOD/LLPnanoAOD/test/templates/run_LLPnanoAOD_from_AOD.template.sh " + condor_run_script_name)
   else:
     os.system("cp LLPNanoAOD/LLPnanoAOD/test/templates/run_LLPnanoAOD_only.template.sh " + condor_run_script_name)
@@ -176,7 +183,7 @@ def setup_run_files(config):
         file.write(input_file_path + "\n")
 
   dataset_name = os.path.basename(config.output_dir)
-  output_file = config.output_dir + "/LLPnanoAODv2/" + dataset_name
+  output_file = config.output_dir + "/LLPnanoAOD/" + dataset_name
   output_file = output_file.replace("/", "\/")
     
   voms_proxy_path = os.popen("voms-proxy-info -path").read().strip().replace("/", "\/")    
@@ -207,6 +214,8 @@ def setup_run_files(config):
   os.system("sed -i 's/<include_GenPart>/{}/g' {}".format(includeGenPart,condor_run_script_name))
   os.system("sed -i 's/<include_DGLMuon>/{}/g' {}".format(includeDGLMuon,condor_run_script_name))
   os.system("sed -i 's/<include_refittedTracks>/{}/g' {}".format(includeRefittedTracks,condor_run_script_name))
+
+  os.system("sed -i 's/<year>/{}/g' {}".format(year,condor_run_script_name))
 
   workDir = os.getcwd().replace("/", "\/")
   os.system("sed -i 's/<work_dir>/{}/g' {}".format(workDir,condor_run_script_name))

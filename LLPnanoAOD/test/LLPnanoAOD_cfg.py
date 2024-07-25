@@ -13,6 +13,8 @@ from Configuration.Eras.Modifier_run2_nanoAOD_106Xv2_cff import run2_nanoAOD_106
 
 # Input arguments
 options = VarParsing('analysis')
+options.outputFile = 'output.root'
+options.inputFiles = 'root://cms-xrd-global.cern.ch///store/data/Run2018A/SingleMuon/AOD/12Nov2019_UL2018-v5/270000/D437BC65-B40B-1944-8DD0-9710C088B916.root'
 options.register('nEvents',
                     1000,
                     VarParsing.multiplicity.singleton,
@@ -60,6 +62,12 @@ options.register('nThreads',
                     VarParsing.multiplicity.singleton,
                     VarParsing.varType.int,
                     "Number of threads to use"
+                )
+options.register('year',
+                    2018,
+                    VarParsing.multiplicity.singleton,
+                    VarParsing.varType.string,
+                    "Year of the dataset"
                 )
 options.parseArguments()
 
@@ -144,11 +152,34 @@ process.NANOAODSIMoutput = cms.OutputModule("NanoAODOutputModule",
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-globalTag = ""
 if options.runOnData:
-    globalTag = GlobalTag(process.GlobalTag, '106X_dataRun2_v35', '')
+    if options.year == "2016":
+        globalTag = GlobalTag(process.GlobalTag, '106X_dataRun2_v36', '')
+    if options.year == "2017":
+        globalTag = GlobalTag(process.GlobalTag, '106X_dataRun2_v35', '')
+    if options.year == "2018":
+        globalTag = GlobalTag(process.GlobalTag, '106X_dataRun2_v35', '')
+    if options.year == "2022ReReco":
+        globalTag = GlobalTag(process.GlobalTag, '130X_dataRun3_v2', '')
+    if options.year == "2022Prompt":
+        globalTag = GlobalTag(process.GlobalTag, '130X_dataRun3_PromptAnalysis_v1', '')
+    if options.year == "2023":
+        globalTag = GlobalTag(process.GlobalTag, '130X_dataRun3_PromptAnalysis_v1', '')
 else:
-    globalTag = GlobalTag(process.GlobalTag, '106X_upgrade2018_realistic_v16_L1v1', '')
+    if options.year == "2016":
+        globalTag = GlobalTag(process.GlobalTag, '106X_mcRun2_asymptotic_v17', '')
+    if options.year == "2017":
+        globalTag = GlobalTag(process.GlobalTag, '106X_mc2017_realistic_v9', '')
+    if options.year == "2018":
+        globalTag = GlobalTag(process.GlobalTag, '106X_upgrade2018_realistic_v16_L1v1', '')
+    if options.year == "2022PreEE":
+        globalTag = GlobalTag(process.GlobalTag, '130X_mcRun3_2022_realistic_v5', '')
+    if options.year == "2022PostEE":
+        globalTag = GlobalTag(process.GlobalTag, '130X_mcRun3_2022_realistic_postEE_v6', '')
+    if options.year == "2023PreBPix":
+        globalTag = GlobalTag(process.GlobalTag, '130X_mcRun3_2023_realistic_v14', '')
+    if options.year == "2023PostBPix":
+        globalTag = GlobalTag(process.GlobalTag, '130X_mcRun3_2023_realistic_postBPix_v2', '')
 process.GlobalTag = globalTag
 
 

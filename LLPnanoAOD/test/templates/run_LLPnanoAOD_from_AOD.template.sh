@@ -43,6 +43,8 @@ includeRefittedTracks=<include_refittedTracks>
 
 saveLLPminiAOD=<save_LLPminiAOD>
 
+year="<year>"
+
 total_files=${#all_files[@]}
 
 for ((i=0; i<$nFiles; i++)); do
@@ -71,9 +73,9 @@ filename_list=${filename_list%,}
 
 cd <work_dir>
 
-cmsRun $CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test/LLPminiAOD_cfg.py "inputFiles=$filename_list" "outputFile=$LLPminiAOD_path" "nEvents=$nEvents" "runOnData=$runOnData"
+cmsRun $CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test/LLPminiAOD_cfg.py "inputFiles=$filename_list" "outputFile=$LLPminiAOD_path" "nEvents=$nEvents" "runOnData=$runOnData" "year=$year"
 
-cmsRun $CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test/LLPnanoAOD_cfg.py "inputFiles=file:$LLPminiAOD_path" "outputFile=$outputPath" "nEvents=$nEvents" "runOnData=$runOnData" "includeDSAMuon=$includeDSAMuon" "includeBS=$includeBS" "includeGenPart=$includeGenPart" "includeDGLMuon=$includeDGLMuon" "includeRefittedTracks=$includeRefittedTracks" 
+cmsRun $CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test/LLPnanoAOD_cfg.py "inputFiles=file:$LLPminiAOD_path" "outputFile=$outputPath" "nEvents=$nEvents" "runOnData=$runOnData" "year=$year" "includeDSAMuon=$includeDSAMuon" "includeBS=$includeBS" "includeGenPart=$includeGenPart" "includeDGLMuon=$includeDGLMuon" "includeRefittedTracks=$includeRefittedTracks" 
 
 echo "LLPNanoAOD file saved in: $outputPath"
 if [[ $saveLLPminiAOD == "False" ]]; then

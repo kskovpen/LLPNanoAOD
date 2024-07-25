@@ -226,6 +226,7 @@ void MuonVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, const e
       std::tuple<float,float,GlobalPoint> distanceTuple = getDistanceBetweenMuonTracks(*muonTrack_i, *muonTrack_j, magneticField);
       // if dca status is good but dca is more than 15 cm
       if(std::get<1>(distanceTuple) && std::get<0>(distanceTuple) > 15) continue;
+      // if(std::get<1>(distanceTuple) && std::get<0>(distanceTuple) > 15) continue;
 
       nPatPatVertices++;
 
@@ -1120,7 +1121,8 @@ std::tuple<float, float, GlobalPoint> MuonVertexTableProducer::getDistanceBetwee
                             GlobalVector(track2.px(), track2.py(), track2.pz()),
                             track2.charge(), magneticField.product());
   bool status = ttmd.calculate(fts1, fts2);
-  if (!status) return std::tuple(-999.f, status, GlobalPoint(-999.f,-999.f,-999.f));
+
+  // if (!status) return std::tuple(-999.f, status, GlobalPoint(-999.f,-999.f,-999.f));
   return std::make_tuple(ttmd.distance(), status, ttmd.crossingPoint());
 }
 

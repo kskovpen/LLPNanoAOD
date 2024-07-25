@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 
 from Configuration.Eras.Era_Run3_cff import Run3
-from Configuration.Eras.Modifier_run3_nanoAOD_124_cff import run3_nanoAOD_124
+from Configuration.Eras.Era_Run3_2023_cff import Run3_2023
 
 # Input arguments
 options = VarParsing('analysis')
@@ -76,7 +76,23 @@ if options.runOnData:
 else:
     print('-- Running on mc')
 
-process = cms.Process('NANO',Run3,run3_nanoAOD_124)
+if options.runOnData:
+    if options.year == "2022ReReco":
+        process = cms.Process('NANO',Run3)
+    if options.year == "2022Prompt":
+        process = cms.Process('NANO',Run3)
+    if options.year == "2023":
+        process = cms.Process('NANO',Run3_2023)
+        
+else:
+    if options.year == "2022PreEE":
+        process = cms.Process('NANO',Run3)
+    if options.year == "2022PostEE":
+        process = cms.Process('NANO',Run3)
+    if options.year == "2023PreBPix":
+        process = cms.Process('NANO',Run3_2023)
+    if options.year == "2023PostBPix":
+        process = cms.Process('NANO',Run3_2023) 
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')

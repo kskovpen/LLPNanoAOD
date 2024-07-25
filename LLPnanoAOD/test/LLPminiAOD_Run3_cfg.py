@@ -56,7 +56,7 @@ if options.runOnData:
     if options.year == "2022Prompt":
         process = cms.Process('PAT',Run3,run3_miniAOD_12X)
     if options.year == "2023":
-        process = cms.Process('PAT',Run3)
+        process = cms.Process('PAT',Run3_2023)
         
 else:
     if options.year == "2022PreEE":

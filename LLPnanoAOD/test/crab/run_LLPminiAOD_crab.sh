@@ -14,7 +14,8 @@ filename=$(basename "$INPUT" .conf)
 crabWorkspace=$CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test/crab
 configWorkspace=$CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test
 
-runFile=LLPminiAOD_cfg.py
+# runFile=LLPminiAOD_cfg.py
+runFile=LLPminiAOD_Run3_cfg.py
 
 source /cvmfs/cms.cern.ch/common/crab-setup.sh
 
@@ -26,7 +27,13 @@ filePerJob=0
 # LLPminiAOD version
 VERSION=1
 
-python $crabWorkspace/crab.py \
+whitelist="['T2_US_*', 'T2_US_*', 'T2_CH_*', 'T2_IT_*', 'T1_IT_*']"
+
+# Year options for MC: 2016, 2017, 2018, 2022PreEE, 2022PostEE, 2023PreBPix, 2023PostBPix
+# Year options for data: 2016HIPM, 2016 (no HIPM), 2017, 2018, 2022ReReco, 2022Prompt, 2023
+year=2022ReReco
+
+python3 $crabWorkspace/crab.py \
 -p $configWorkspace/$runFile \
 --site T2_DE_DESY \
 -o /store/user/$USER/ttalps \
@@ -39,7 +46,11 @@ python $crabWorkspace/crab.py \
 --max-runtime-min $maxRuntime \
 --work-area $crabWorkspace/crab_projects/crab_${filename}_v$VERSION \
 --publication \
-# --dryrun \
+--runOnData \
+--year $year \
+--dryrun \
+# --ignore_locality \
+# --whitelist "$whitelist" \
 # --test \
 # --input-DBS 'phys03' \
 # --set-input-dataset \

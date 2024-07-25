@@ -1,14 +1,40 @@
 #!/bin/bash
 
+# Debugging output
+echo "Hostname: $(hostname)"
+echo "Current directory: $(pwd)"
+echo "Initial SCRAM_ARCH: $SCRAM_ARCH"
+echo "Initial CMSSW_BASE: $CMSSW_BASE"
+echo "Initial LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
+
 export X509_USER_PROXY=`pwd`/voms_proxy
 
 export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch
 source $VO_CMS_SW_DIR/cmsset_default.sh
-export SCRAM_ARCH=slc7_amd64_gcc700
+# export SCRAM_ARCH=slc7_amd64_gcc700
+export SCRAM_ARCH=slc7_amd64_gcc11
 export CMSSW_GIT_REFERENCE=/cvmfs/cms.cern.ch/cmssw.git
+
+echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
 
 cd $CMSSW_BASE
 eval `scramv1 runtime -sh`
+
+# Check if /cvmfs is mounted
+if [ ! -d /cvmfs/cms.cern.ch ]; then
+  echo "/cvmfs/cms.cern.ch is not available"
+  exit 1
+fi
+
+export LD_LIBRARY_PATH=/afs/desy.de/user/l/lrygaard/TTALP/CMSSW_13_0_13/biglib/slc7_amd64_gcc11:/afs/desy.de/user/l/lrygaard/TTALP/CMSSW_13_0_13/lib/slc7_amd64_gcc11:/afs/desy.de/user/l/lrygaard/TTALP/CMSSW_13_0_13/external/slc7_amd64_gcc11/lib:/cvmfs/cms.cern.ch/slc7_amd64_gcc11/cms/cmssw/CMSSW_13_0_13/biglib/slc7_amd64_gcc11:/cvmfs/cms.cern.ch/slc7_amd64_gcc11/cms/cmssw/CMSSW_13_0_13/lib/slc7_amd64_gcc11:/cvmfs/cms.cern.ch/slc7_amd64_gcc11/cms/cmssw/CMSSW_13_0_13/external/slc7_amd64_gcc11/lib:/cvmfs/cms.cern.ch/slc7_amd64_gcc11/external/llvm/12.0.1-476112d9475f69ecba350f77e3ec4975/lib64:/cvmfs/cms.cern.ch/slc7_amd64_gcc11/external/gcc/11.2.1-f9b9dfdd886f71cd63f5538223d8f161/lib64:/cvmfs/cms.cern.ch/slc7_amd64_gcc11/external/gcc/11.2.1-f9b9dfdd886f71cd63f5538223d8f161/lib:/cvmfs/cms.cern.ch/slc7_amd64_gcc11/external/cuda/11.5.2-66a9473808e7d5863d5bbec0824e2c4a/lib64/stubs:/cvmfs/grid.cern.ch/centos7-umd4-ui-211021/lib64:/cvmfs/grid.cern.ch/centos7-umd4-ui-211021/lib:/cvmfs/grid.cern.ch/centos7-umd4-ui-211021/usr/lib64:/cvmfs/grid.cern.ch/centos7-umd4-ui-211021/usr/lib:/cvmfs/grid.cern.ch/centos7-umd4-ui-211021/usr/lib64/dcap:/afs/desy.de/user/l/lrygaard/tools/MG5_aMC_v3_4_2/HEPTools/lhapdf6_py3/lib
+
+# Debugging output after setting up the CMSSW environment
+echo "After setup:"
+echo "SCRAM_ARCH: $SCRAM_ARCH"
+echo "CMSSW_BASE: $CMSSW_BASE"
+echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
+echo "PATH: $PATH"
+echo "PYTHONPATH: $PYTHONPATH"
 
 job_number=$1
 echo "Executing job number $job_number"
@@ -43,6 +69,11 @@ includeRefittedTracks=<include_refittedTracks>
 
 saveLLPminiAOD=<save_LLPminiAOD>
 
+year="<year>"
+
+miniAODrunFile=<miniAOD_runfile>
+nanoAODrunFile=<nanoAOD_runfile>
+
 total_files=${#all_files[@]}
 
 for ((i=0; i<$nFiles; i++)); do
@@ -71,9 +102,11 @@ filename_list=${filename_list%,}
 
 cd <work_dir>
 
-cmsRun $CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test/LLPminiAOD_cfg.py "inputFiles=$filename_list" "outputFile=$LLPminiAOD_path" "nEvents=$nEvents" "runOnData=$runOnData"
+echo cmsRun $CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test/$miniAODrunFile "inputFiles=$filename_list" "outputFile=$LLPminiAOD_path" "nEvents=$nEvents" "runOnData=$runOnData" "year=$year"
+cmsRun $CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test/$miniAODrunFile "inputFiles=$filename_list" "outputFile=$LLPminiAOD_path" "nEvents=$nEvents" "runOnData=$runOnData" "year=$year"
 
-cmsRun $CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test/LLPnanoAOD_cfg.py "inputFiles=file:$LLPminiAOD_path" "outputFile=$outputPath" "nEvents=$nEvents" "runOnData=$runOnData" "includeDSAMuon=$includeDSAMuon" "includeBS=$includeBS" "includeGenPart=$includeGenPart" "includeDGLMuon=$includeDGLMuon" "includeRefittedTracks=$includeRefittedTracks" 
+echo cmsRun $CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test/$nanoAODrunFile "inputFiles=file:$LLPminiAOD_path" "outputFile=$outputPath" "nEvents=$nEvents" "runOnData=$runOnData" "includeDSAMuon=$includeDSAMuon" "includeBS=$includeBS" "includeGenPart=$includeGenPart" "includeDGLMuon=$includeDGLMuon" "includeRefittedTracks=$includeRefittedTracks" "year=$year"
+cmsRun $CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test/$nanoAODrunFile "inputFiles=file:$LLPminiAOD_path" "outputFile=$outputPath" "nEvents=$nEvents" "runOnData=$runOnData" "includeDSAMuon=$includeDSAMuon" "includeBS=$includeBS" "includeGenPart=$includeGenPart" "includeDGLMuon=$includeDGLMuon" "includeRefittedTracks=$includeRefittedTracks" "year=$year"
 
 echo "LLPNanoAOD file saved in: $outputPath"
 if [[ $saveLLPminiAOD == "False" ]]; then

@@ -30,7 +30,8 @@ class DGLMuonTableProducer : public edm::global::EDProducer<> {
       dglMuonTag_(consumes<std::vector<reco::Track>>(iConfig.getParameter<edm::InputTag>("dglMuons"))),
       muonTag_(consumes<std::vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("muons"))),
       vtxTag_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertex"))),
-      bsTag_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamspot")))
+      bsTag_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamspot"))),
+      transientTrackBuilderToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder")))
       {
       produces<nanoaod::FlatTable>("DGLMuon");
     }
@@ -56,6 +57,7 @@ class DGLMuonTableProducer : public edm::global::EDProducer<> {
     edm::EDGetTokenT<std::vector<pat::Muon>> muonTag_;
     edm::EDGetTokenT<reco::VertexCollection> vtxTag_;
     edm::EDGetTokenT<reco::BeamSpot> bsTag_;
+    edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackBuilderToken_;
 
 };
 
@@ -80,8 +82,10 @@ void DGLMuonTableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm:
   GlobalPoint beamSpot(bs.x(), bs.y(), bs.z());
   reco::Vertex beamSpotVertex(beamSpotHandle->position(), beamSpotHandle->covariance3D());
 
-  edm::ESHandle<TransientTrackBuilder> builder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
+  // edm::ESHandle<TransientTrackBuilder> builder;
+  // iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
+  // auto const& builder = &iSetup.getData(transientTrackBuilderToken_);
+  edm::ESHandle<TransientTrackBuilder> builder = iSetup.getHandle(transientTrackBuilderToken_);
 
   unsigned int nDGLMuons = DGLMuonHandle->size();
   unsigned int nMuons = muonHandle->size();
@@ -184,64 +188,64 @@ void DGLMuonTableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm:
 
   auto DGLMuonTab = std::make_unique<nanoaod::FlatTable>(DGLMuonHandle->size(), "DGLMuon", false, false);
 
-  DGLMuonTab->addColumn<float>("idx", idx, "",  nanoaod::FlatTable::FloatColumn);
+  DGLMuonTab->addColumn<float>("idx", idx, "");
 
-  DGLMuonTab->addColumn<float>("pt", pt, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("ptErr", ptErr, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("eta", eta, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("etaErr", etaErr, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("phi", phi, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("phiErr", phiErr, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("charge", charge, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("dxy", dxy, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("dz", dz, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("vx", vx, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("vy", vy, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("vz", vz, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("chi2", chi2, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("ndof", ndof, "",  nanoaod::FlatTable::FloatColumn);
+  DGLMuonTab->addColumn<float>("pt", pt, "");
+  DGLMuonTab->addColumn<float>("ptErr", ptErr, "");
+  DGLMuonTab->addColumn<float>("eta", eta, "");
+  DGLMuonTab->addColumn<float>("etaErr", etaErr, "");
+  DGLMuonTab->addColumn<float>("phi", phi, "");
+  DGLMuonTab->addColumn<float>("phiErr", phiErr, "");
+  DGLMuonTab->addColumn<float>("charge", charge, "");
+  DGLMuonTab->addColumn<float>("dxy", dxy, "");
+  DGLMuonTab->addColumn<float>("dz", dz, "");
+  DGLMuonTab->addColumn<float>("vx", vx, "");
+  DGLMuonTab->addColumn<float>("vy", vy, "");
+  DGLMuonTab->addColumn<float>("vz", vz, "");
+  DGLMuonTab->addColumn<float>("chi2", chi2, "");
+  DGLMuonTab->addColumn<float>("ndof", ndof, "");
 
-  DGLMuonTab->addColumn<float>("trkNumPlanes", trkNumPlanes, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("trkNumHits", trkNumHits, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("trkNumDTHits", trkNumDTHits, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("trkNumCSCHits", trkNumCSCHits, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("normChi2", normChi2, "",  nanoaod::FlatTable::FloatColumn);
+  DGLMuonTab->addColumn<float>("trkNumPlanes", trkNumPlanes, "");
+  DGLMuonTab->addColumn<float>("trkNumHits", trkNumHits, "");
+  DGLMuonTab->addColumn<float>("trkNumDTHits", trkNumDTHits, "");
+  DGLMuonTab->addColumn<float>("trkNumCSCHits", trkNumCSCHits, "");
+  DGLMuonTab->addColumn<float>("normChi2", normChi2, "");
 
-  DGLMuonTab->addColumn<float>("outerEta", outerEta, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("outerPhi", outerPhi, "",  nanoaod::FlatTable::FloatColumn);
+  DGLMuonTab->addColumn<float>("outerEta", outerEta, "");
+  DGLMuonTab->addColumn<float>("outerPhi", outerPhi, "");
   
-  DGLMuonTab->addColumn<float>("dzPV", dzPV, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("dzPVErr", dzPVErr, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("dxyPVTraj", dxyPVTraj, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("dxyPVTrajErr", dxyPVTrajErr, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("dxyPVSigned", dxyPVSigned, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("dxyPVSignedErr", dxyPVSignedErr, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("ip3DPVSigned", ip3DPVSigned, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("ip3DPVSignedErr", ip3DPVSignedErr, "",  nanoaod::FlatTable::FloatColumn);
+  DGLMuonTab->addColumn<float>("dzPV", dzPV, "");
+  DGLMuonTab->addColumn<float>("dzPVErr", dzPVErr, "");
+  DGLMuonTab->addColumn<float>("dxyPVTraj", dxyPVTraj, "");
+  DGLMuonTab->addColumn<float>("dxyPVTrajErr", dxyPVTrajErr, "");
+  DGLMuonTab->addColumn<float>("dxyPVSigned", dxyPVSigned, "");
+  DGLMuonTab->addColumn<float>("dxyPVSignedErr", dxyPVSignedErr, "");
+  DGLMuonTab->addColumn<float>("ip3DPVSigned", ip3DPVSigned, "");
+  DGLMuonTab->addColumn<float>("ip3DPVSignedErr", ip3DPVSignedErr, "");
 
-  DGLMuonTab->addColumn<float>("dxyBS", dxyBS, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("dxyBSErr", dxyBSErr, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("dzBS", dzBS, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("dzBSErr", dzBSErr, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("dxyBSTraj", dxyBSTraj, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("dxyBSTrajErr", dxyBSTrajErr, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("dxyBSSigned", dxyBSSigned, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("dxyBSSignedErr", dxyBSSignedErr, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("ip3DBSSigned", ip3DBSSigned, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("ip3DBSSignedErr", ip3DBSSignedErr, "",  nanoaod::FlatTable::FloatColumn);
+  DGLMuonTab->addColumn<float>("dxyBS", dxyBS, "");
+  DGLMuonTab->addColumn<float>("dxyBSErr", dxyBSErr, "");
+  DGLMuonTab->addColumn<float>("dzBS", dzBS, "");
+  DGLMuonTab->addColumn<float>("dzBSErr", dzBSErr, "");
+  DGLMuonTab->addColumn<float>("dxyBSTraj", dxyBSTraj, "");
+  DGLMuonTab->addColumn<float>("dxyBSTrajErr", dxyBSTrajErr, "");
+  DGLMuonTab->addColumn<float>("dxyBSSigned", dxyBSSigned, "");
+  DGLMuonTab->addColumn<float>("dxyBSSignedErr", dxyBSSignedErr, "");
+  DGLMuonTab->addColumn<float>("ip3DBSSigned", ip3DBSSigned, "");
+  DGLMuonTab->addColumn<float>("ip3DBSSignedErr", ip3DBSSignedErr, "");
 
-  DGLMuonTab->addColumn<float>("displacedID", displacedId, "",  nanoaod::FlatTable::FloatColumn);
+  DGLMuonTab->addColumn<float>("displacedID", displacedId, "");
 
-  DGLMuonTab->addColumn<float>("muonMatch1", muonMatch1, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("muonMatch1idx", muonMatch1idx, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("muonMatch2", muonMatch2, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("muonMatch2idx", muonMatch2idx, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("muonMatch3", muonMatch3, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("muonMatch3idx", muonMatch3idx, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("muonMatch4", muonMatch4, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("muonMatch4idx", muonMatch4idx, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("muonMatch5", muonMatch5, "",  nanoaod::FlatTable::FloatColumn);
-  DGLMuonTab->addColumn<float>("muonMatch5idx", muonMatch5idx, "",  nanoaod::FlatTable::FloatColumn);
+  DGLMuonTab->addColumn<float>("muonMatch1", muonMatch1, "");
+  DGLMuonTab->addColumn<float>("muonMatch1idx", muonMatch1idx, "");
+  DGLMuonTab->addColumn<float>("muonMatch2", muonMatch2, "");
+  DGLMuonTab->addColumn<float>("muonMatch2idx", muonMatch2idx, "");
+  DGLMuonTab->addColumn<float>("muonMatch3", muonMatch3, "");
+  DGLMuonTab->addColumn<float>("muonMatch3idx", muonMatch3idx, "");
+  DGLMuonTab->addColumn<float>("muonMatch4", muonMatch4, "");
+  DGLMuonTab->addColumn<float>("muonMatch4idx", muonMatch4idx, "");
+  DGLMuonTab->addColumn<float>("muonMatch5", muonMatch5, "");
+  DGLMuonTab->addColumn<float>("muonMatch5idx", muonMatch5idx, "");
 
   iEvent.put(std::move(DGLMuonTab), "DGLMuon");
 }

@@ -1,29 +1,24 @@
-# Auto generated configuration file
-# using: 
-# Revision: 1.19 
-# Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: step1 --mc --eventcontent MINIAODSIM --runUnscheduled --datatier MINIAODSIM --conditions 106X_upgrade2018_realistic_v16_L1v1 --step PAT --procModifiers run2_miniAOD_UL --nThreads 8 --geometry DB:Extended --era Run2_2018 --filein file:step-1.root --fileout file:step0.root
-import os 
+import os
 import sys
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 
-from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
-from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
-from Configuration.ProcessModifiers.run2_miniAOD_UL_preSummer20_cff import run2_miniAOD_UL_preSummer20
+from Configuration.Eras.Era_Run3_cff import Run3
+from Configuration.Eras.Era_Run3_2023_cff import Run3_2023
+from Configuration.Eras.Modifier_run3_miniAOD_12X_cff import run3_miniAOD_12X
 
 # Input arguments
 options = VarParsing('analysis')
 options.outputFile = 'output.root'
-options.inputFiles = 'root://cms-xrd-global.cern.ch///store/data/Run2018A/SingleMuon/AOD/12Nov2019_UL2018-v5/270000/D437BC65-B40B-1944-8DD0-9710C088B916.root'
+options.inputFiles = 'root://xrootd-cms.infn.it//store/data/Run2022C/SingleMuon/AOD/27Jun2023-v1/2820000/ae0a7cb5-8034-4035-8fb9-07bd54a1bd73.root'
 options.register('nEvents',
-                    0,
+                    1000,
                     VarParsing.multiplicity.singleton,
                     VarParsing.varType.int,
                     "Number of events to process"
                 )
 options.register('runOnData',
-                    False,
+                    True,
                     VarParsing.multiplicity.singleton,
                     VarParsing.varType.bool,
                     "If running on data"
@@ -34,24 +29,44 @@ options.register('nThreads',
                     VarParsing.varType.int,
                     "Number of threads to use"
                 )
+options.register('year',
+                    "2022ReReco",
+                    VarParsing.multiplicity.singleton,
+                    VarParsing.varType.string,
+                    "Year of the dataset"
+                )
 options.parseArguments()
 
 nevents = options.nEvents
 if nevents == 0:
     nevents=-1
 
-print('Running run_LLPMiniAOD.py')
-print('-- Output MiniAOD file: '+options.outputFile)
+print('Running LLPminiAOD_Run3_cfg.py')
 print('-- Running on '+str(nevents)+' number of events')
 if options.runOnData:
     print('-- Running on data')
 else:
     print('-- Running on mc')
+print('-- Year: ' + options.year)
 
+# load process for correct year and data/MC
 if options.runOnData:
-    process = cms.Process('PAT',Run2_2018,run2_miniAOD_UL_preSummer20)
+    if options.year == "2022ReReco":
+        process = cms.Process('PAT',Run3,run3_miniAOD_12X)
+    if options.year == "2022Prompt":
+        process = cms.Process('PAT',Run3,run3_miniAOD_12X)
+    if options.year == "2023":
+        process = cms.Process('PAT',Run3)
+        
 else:
-    process = cms.Process('PAT',Run2_2018,run2_miniAOD_UL)
+    if options.year == "2022PreEE":
+        process = cms.Process('PAT',Run3)
+    if options.year == "2022PostEE":
+        process = cms.Process('PAT',Run3)
+    if options.year == "2023PreBPix":
+        process = cms.Process('PAT',Run3_2023) 
+    if options.year == "2023PostBPix":
+        process = cms.Process('PAT',Run3_2023) 
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -59,18 +74,14 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('PhysicsTools.PatAlgos.slimming.metFilterPaths_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 100000  # Set reportEvery to control the frequency of report messages
-process.MessageLogger.threshold = cms.untracked.string('ERROR')  # Set the output threshold to ERROR
-
-# process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
-#     ignoreTotal = cms.untracked.int32(1)
-# )
+# process.MessageLogger.threshold = cms.untracked.string('ERROR')  # Set the output threshold to ERROR
 
 if options.runOnData:
     process.load('Configuration.StandardSequences.PAT_cff')
@@ -81,14 +92,13 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(nevents)
 )
 
-# Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(options.inputFiles),
-    secondaryFileNames = cms.untracked.vstring()
+    secondaryFileNames = cms.untracked.vstring(),
+    duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 )
 
 process.options = cms.untracked.PSet(
-
 )
 
 # Production Info
@@ -98,9 +108,7 @@ process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.19 $')
 )
 
-
 # Output definition
-
 datatier = 'MINIAODSIM'
 outputcommands = process.MINIAODSIMEventContent.outputCommands
 if options.runOnData:
@@ -175,44 +183,12 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
 
 # Additional output definition
 process.MINIAODSIMoutput.outputCommands.append('keep *_generalTracks_*_*')
-
-# process.MINIAODSIMoutput.outputCommands.append('keep *_displacedStandAloneMuons_*_*')
-# process.MINIAODSIMoutput.outputCommands.append('keep *_muonReducedTrackExtras_*_*')
-# process.MINIAODSIMoutput.outputCommands.append('keep *_globalMuons_*_*')
-# process.MINIAODSIMoutput.outputCommands.append('keep *_standAloneMuons_*_*')
-
-process.MINIAODSIMoutput.outputCommands.append('keep recoTrackExtras_muonReducedTrackExtras__RECO') # tested
-
+process.MINIAODSIMoutput.outputCommands.append('keep recoTrackExtras_muonReducedTrackExtras__RECO')
 process.MINIAODSIMoutput.outputCommands.append('keep recoTracks_displacedStandAloneMuons__RECO')
 process.MINIAODSIMoutput.outputCommands.append('keep recoTrackExtras_displacedStandAloneMuons__RECO') 
-process.MINIAODSIMoutput.outputCommands.append('keep TrackingRecHitsOwned_displacedStandAloneMuons__RECO') # tested
-
-process.MINIAODSIMoutput.outputCommands.append('keep recoTrackExtras_globalMuons__RECO') # tested
-
-process.MINIAODSIMoutput.outputCommands.append('keep recoTrackExtras_standAloneMuons__RECO') # tested
-
-### Excluded
-# process.MINIAODSIMoutput.outputCommands.append('keep *_displacedGlobalMuons_*_*')
-# process.MINIAODSIMoutput.outputCommands.append('keep *_refittedStandAloneMuons_*_*')
-# process.MINIAODSIMoutput.outputCommands.append('keep *_muons_*_*')
-# process.MINIAODSIMoutput.outputCommands.append('keep recoTracks_standAloneMuons_UpdatedAtVtx_RECO')
-# process.MINIAODSIMoutput.outputCommands.append('keep SiPixelClusteredmNewDetSetVector_muonReducedTrackExtras__RECO')
-# process.MINIAODSIMoutput.outputCommands.append('keep SiStripClusteredmNewDetSetVector_muonReducedTrackExtras__RECO')
-# process.MINIAODSIMoutput.outputCommands.append('keep recoTrackExtrasedmAssociation_muonReducedTrackExtras__RECO')
-# process.MINIAODSIMoutput.outputCommands.append('keep TrackingRecHitsOwned_muonReducedTrackExtras__RECO')
-# process.MINIAODSIMoutput.outputCommands.append('keep recoTracks_globalMuons__RECO')
-# process.MINIAODSIMoutput.outputCommands.append('keep recoTracks_standAloneMuons__RECO')
-# process.MINIAODSIMoutput.outputCommands.append('keep TrackingRecHitsOwned_standAloneMuons__RECO')
-
-
-# Other statements
-from Configuration.AlCa.GlobalTag import GlobalTag
-globalTag = ""
-if options.runOnData:
-    globalTag = GlobalTag(process.GlobalTag, '106X_dataRun2_v33', '')
-else:
-    globalTag = GlobalTag(process.GlobalTag, '106X_upgrade2018_realistic_v16_L1v1', '')
-process.GlobalTag = globalTag
+process.MINIAODSIMoutput.outputCommands.append('keep TrackingRecHitsOwned_displacedStandAloneMuons__RECO')
+process.MINIAODSIMoutput.outputCommands.append('keep recoTrackExtras_globalMuons__RECO')
+process.MINIAODSIMoutput.outputCommands.append('keep recoTrackExtras_standAloneMuons__RECO')
 
 
 # Path and EndPath definitions
@@ -248,6 +224,27 @@ process.Flag_BadPFMuonDzFilter = cms.Path(process.BadPFMuonDzFilter)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.MINIAODSIMoutput_step = cms.EndPath(process.MINIAODSIMoutput)
 
+# Other statements
+from Configuration.AlCa.GlobalTag import GlobalTag
+globalTag = ""
+if options.runOnData:
+    if options.year == "2022ReReco":
+        globalTag = GlobalTag(process.GlobalTag, '130X_dataRun3_v2', '')
+    if options.year == "2022Prompt":
+        globalTag = GlobalTag(process.GlobalTag, '130X_dataRun3_PromptAnalysis_v1', '')
+    if options.year == "2023":
+        globalTag = GlobalTag(process.GlobalTag, '130X_dataRun3_PromptAnalysis_v1', '')
+else:
+    if options.year == "2022PreEE":
+        globalTag = GlobalTag(process.GlobalTag, '130X_mcRun3_2022_realistic_v5', '')
+    if options.year == "2022PostEE":
+        globalTag = GlobalTag(process.GlobalTag, '130X_mcRun3_2022_realistic_postEE_v6', '')
+    if options.year == "2023PreBPix":
+        globalTag = GlobalTag(process.GlobalTag, '130X_mcRun3_2023_realistic_v14', '')
+    if options.year == "2023PostBPix":
+        globalTag = GlobalTag(process.GlobalTag, '130X_mcRun3_2023_realistic_postBPix_v2', '')
+print("year: "+options.year)
+process.GlobalTag = globalTag
 
 # Schedule definition
 process.schedule = cms.Schedule(process.Flag_HBHENoiseFilter,process.Flag_HBHENoiseIsoFilter,process.Flag_CSCTightHaloFilter,process.Flag_CSCTightHaloTrkMuUnvetoFilter,process.Flag_CSCTightHalo2015Filter,process.Flag_globalTightHalo2016Filter,process.Flag_globalSuperTightHalo2016Filter,process.Flag_HcalStripHaloFilter,process.Flag_hcalLaserEventFilter,process.Flag_EcalDeadCellTriggerPrimitiveFilter,process.Flag_EcalDeadCellBoundaryEnergyFilter,process.Flag_ecalBadCalibFilter,process.Flag_goodVertices,process.Flag_eeBadScFilter,process.Flag_ecalLaserCorrFilter,process.Flag_trkPOGFilters,process.Flag_chargedHadronTrackResolutionFilter,process.Flag_muonBadTrackFilter,process.Flag_BadChargedCandidateFilter,process.Flag_BadPFMuonFilter,process.Flag_BadPFMuonDzFilter,process.Flag_hfNoisyHitsFilter,process.Flag_BadChargedCandidateSummer16Filter,process.Flag_BadPFMuonSummer16Filter,process.Flag_trkPOG_manystripclus53X,process.Flag_trkPOG_toomanystripclus53X,process.Flag_trkPOG_logErrorTooManyClusters,process.Flag_METFilters,process.endjob_step,process.MINIAODSIMoutput_step)
@@ -264,21 +261,12 @@ process.options.numberOfConcurrentLuminosityBlocks=cms.untracked.uint32(1)
 from FWCore.ParameterSet.Utilities import convertToUnscheduled
 process=convertToUnscheduled(process)
 
-# customisation of the process.
 if options.runOnData:
-    # Automatic addition of the customisation function from PhysicsTools.PatAlgos.slimming.miniAOD_tools
     from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeAllData 
-    #call to customisation function miniAOD_customizeAllData imported from PhysicsTools.PatAlgos.slimming.miniAOD_tools
     process = miniAOD_customizeAllData(process)
 else:
-    # Automatic addition of the customisation function from PhysicsTools.PatAlgos.slimming.miniAOD_tools
     from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeAllMC 
-    #call to customisation function miniAOD_customizeAllMC imported from PhysicsTools.PatAlgos.slimming.miniAOD_tools
     process = miniAOD_customizeAllMC(process)
-
-# End of customisation functions
-
-# Customisation from command line
 
 # Add early deletion of temporary data products to reduce peak memory need
 from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete

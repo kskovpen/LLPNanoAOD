@@ -24,7 +24,7 @@ maxRuntime=2750
 filePerJob=1
 VERSION=1
 
-python $crabWorkspace/crab.py \
+python3 $crabWorkspace/crab.py \
 -p $configWorkspace/$runFile \
 --site T2_DE_DESY \
 -o /store/user/$USER/ttalps \
@@ -42,6 +42,7 @@ python $crabWorkspace/crab.py \
 --input-DBS 'phys03' \
 --publication \
 --dryrun
+# --runOnData
 # --includeDGLMuon \
 # --set-input-dataset \
 #--send-external \

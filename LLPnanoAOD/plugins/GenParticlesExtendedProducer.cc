@@ -58,13 +58,13 @@ public:
       pz.push_back(genparticle.pz());
     }
 
-    genparticlesTab->addColumn<float>("vx", vx, "",  nanoaod::FlatTable::FloatColumn);
-    genparticlesTab->addColumn<float>("vy", vy, "",  nanoaod::FlatTable::FloatColumn);
-    genparticlesTab->addColumn<float>("vz", vz, "",  nanoaod::FlatTable::FloatColumn);
+    genparticlesTab->addColumn<float>("vx", vx, "");
+    genparticlesTab->addColumn<float>("vy", vy, "");
+    genparticlesTab->addColumn<float>("vz", vz, "");
 
-    genparticlesTab->addColumn<float>("px", px, "",  nanoaod::FlatTable::FloatColumn);
-    genparticlesTab->addColumn<float>("py", py, "",  nanoaod::FlatTable::FloatColumn);
-    genparticlesTab->addColumn<float>("pz", pz, "",  nanoaod::FlatTable::FloatColumn);
+    genparticlesTab->addColumn<float>("px", px, "");
+    genparticlesTab->addColumn<float>("py", py, "");
+    genparticlesTab->addColumn<float>("pz", pz, "");
 
     iEvent.put(std::move(genparticlesTab), "GenPart");
   }

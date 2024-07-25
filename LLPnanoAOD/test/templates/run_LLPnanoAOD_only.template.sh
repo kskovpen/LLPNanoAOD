@@ -34,6 +34,10 @@ includeGenPart=<include_GenPart>
 includeDGLMuon=<include_DGLMuon>
 includeRefittedTracks=<include_refittedTracks>
 
+year="<year>"
+
+nanoAODrunFile=<nanoAOD_runfile>
+
 total_files=${#all_files[@]}
 
 for ((i=0; i<$nFiles; i++)); do
@@ -62,8 +66,8 @@ filename_list=${filename_list%,}
 
 cd <work_dir>
 
-echo cmsRun $CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test/LLPnanoAOD_cfg.py "inputFiles=$filename_list" "outputFile=$outputPath" "nEvents=$nEvents" "runOnData=$runOnData" "includeDSAMuon=$includeDSAMuon" "includeBS=$includeBS" "includeGenPart=$includeGenPart" "includeDGLMuon=$includeDGLMuon" "includeRefittedTracks=$includeRefittedTracks" 
-cmsRun $CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test/LLPnanoAOD_cfg.py  "inputFiles=$filename_list" "outputFile=$outputPath" "nEvents=$nEvents" "runOnData=$runOnData" "includeDSAMuon=$includeDSAMuon" "includeBS=$includeBS" "includeGenPart=$includeGenPart" "includeDGLMuon=$includeDGLMuon" "includeRefittedTracks=$includeRefittedTracks" 
+echo cmsRun $CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test/$nanoAODrunFile "inputFiles=$filename_list" "outputFile=$outputPath" "nEvents=$nEvents" "runOnData=$runOnData" "includeDSAMuon=$includeDSAMuon" "includeBS=$includeBS" "includeGenPart=$includeGenPart" "includeDGLMuon=$includeDGLMuon" "includeRefittedTracks=$includeRefittedTracks" 
+cmsRun $CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test/$nanoAODrunFile  "inputFiles=$filename_list" "outputFile=$outputPath" "nEvents=$nEvents" "runOnData=$runOnData" "includeDSAMuon=$includeDSAMuon" "includeBS=$includeBS" "includeGenPart=$includeGenPart" "includeDGLMuon=$includeDGLMuon" "includeRefittedTracks=$includeRefittedTracks" 
 
 echo "LLPNanoAOD file saved in: $outputPath"
 

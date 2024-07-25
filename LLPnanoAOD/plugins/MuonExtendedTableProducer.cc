@@ -32,7 +32,8 @@ class MuonExtendedTableProducer : public edm::global::EDProducer<> {
       dsaMuonTag_(consumes<std::vector<reco::Track>>(iConfig.getParameter<edm::InputTag>("dsaMuons"))),
       vtxTag_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertex"))),
       bsTag_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamspot"))),
-      generalTrackTag_(consumes<std::vector<reco::Track>>(iConfig.getParameter<edm::InputTag>("generalTracks")))
+      generalTrackTag_(consumes<std::vector<reco::Track>>(iConfig.getParameter<edm::InputTag>("generalTracks"))),
+      transientTrackBuilderToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder")))
     {
       produces<nanoaod::FlatTable>();
     }
@@ -61,6 +62,7 @@ class MuonExtendedTableProducer : public edm::global::EDProducer<> {
     edm::EDGetTokenT<reco::VertexCollection> vtxTag_;
     edm::EDGetTokenT<reco::BeamSpot> bsTag_;
     edm::EDGetTokenT<std::vector<reco::Track>> generalTrackTag_;
+    edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackBuilderToken_;
 
 };
 
@@ -87,11 +89,14 @@ void MuonExtendedTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
   GlobalPoint beamSpot(bs.x(), bs.y(), bs.z());
   reco::Vertex beamSpotVertex(beamspots->position(), beamspots->covariance3D());
 
-  edm::ESHandle<TransientTrackBuilder> builder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
+  // edm::ESHandle<TransientTrackBuilder> builder;
+  // iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
+  // auto const& builder = &iSetup.getData(transientTrackBuilderToken_);
+  edm::ESHandle<TransientTrackBuilder> builder = iSetup.getHandle(transientTrackBuilderToken_);
 
   unsigned int nMuons = muons->size();
   unsigned int nDsaMuons = dsaMuons->size();
+  
 
   std::vector<float> idx, charge, trkPt, trkPtErr;
 
@@ -211,59 +216,59 @@ void MuonExtendedTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
   }
 
   auto tab  = std::make_unique<nanoaod::FlatTable>(nMuons, name_, false, true);
-  tab->addColumn<float>("idx", idx, "LLPnanoAOD muon index", nanoaod::FlatTable::FloatColumn);
+  tab->addColumn<float>("idx", idx, "LLPnanoAOD muon index");
 
-  tab->addColumn<float>("trkPt", trkPt, "", nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("trkPtErr", trkPtErr, "", nanoaod::FlatTable::FloatColumn);
+  tab->addColumn<float>("trkPt", trkPt, "");
+  tab->addColumn<float>("trkPtErr", trkPtErr, "");
 
-  tab->addColumn<float>("dzPV", dzPV, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dzPVErr", dzPVErr, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dxyPVTraj", dxyPVTraj, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dxyPVTrajErr", dxyPVTrajErr, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dxyPVSigned", dxyPVSigned, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dxyPVSignedErr", dxyPVSignedErr, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("ip3DPVSigned", ip3DPVSigned, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("ip3DPVSignedErr", ip3DPVSignedErr, "",  nanoaod::FlatTable::FloatColumn);
+  tab->addColumn<float>("dzPV", dzPV, "");
+  tab->addColumn<float>("dzPVErr", dzPVErr, "");
+  tab->addColumn<float>("dxyPVTraj", dxyPVTraj, "");
+  tab->addColumn<float>("dxyPVTrajErr", dxyPVTrajErr, "");
+  tab->addColumn<float>("dxyPVSigned", dxyPVSigned, "");
+  tab->addColumn<float>("dxyPVSignedErr", dxyPVSignedErr, "");
+  tab->addColumn<float>("ip3DPVSigned", ip3DPVSigned, "");
+  tab->addColumn<float>("ip3DPVSignedErr", ip3DPVSignedErr, "");
 
-  tab->addColumn<float>("dxyBS", dxyBS, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dxyBSErr", dxyBSErr, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dzBS", dzBS, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dzBSErr", dzBSErr, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dxyBSTraj", dxyBSTraj, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dxyBSTrajErr", dxyBSTrajErr, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dxyBSSigned", dxyBSSigned, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dxyBSSignedErr", dxyBSSignedErr, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("ip3DBSSigned", ip3DBSSigned, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("ip3DBSSignedErr", ip3DBSSignedErr, "",  nanoaod::FlatTable::FloatColumn);
+  tab->addColumn<float>("dxyBS", dxyBS, "");
+  tab->addColumn<float>("dxyBSErr", dxyBSErr, "");
+  tab->addColumn<float>("dzBS", dzBS, "");
+  tab->addColumn<float>("dzBSErr", dzBSErr, "");
+  tab->addColumn<float>("dxyBSTraj", dxyBSTraj, "");
+  tab->addColumn<float>("dxyBSTrajErr", dxyBSTrajErr, "");
+  tab->addColumn<float>("dxyBSSigned", dxyBSSigned, "");
+  tab->addColumn<float>("dxyBSSignedErr", dxyBSSignedErr, "");
+  tab->addColumn<float>("ip3DBSSigned", ip3DBSSigned, "");
+  tab->addColumn<float>("ip3DBSSignedErr", ip3DBSSignedErr, "");
 
-  tab->addColumn<float>("trkNumPlanes", trkNumPlanes, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("trkNumHits", trkNumHits, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("trkNumDTHits", trkNumDTHits, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("trkNumCSCHits", trkNumCSCHits, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("normChi2", normChi2, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("trkNumPixelHits", trkNumPixelHits, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("trkNumTrkLayers", trkNumTrkLayers, "",  nanoaod::FlatTable::FloatColumn);
+  tab->addColumn<float>("trkNumPlanes", trkNumPlanes, "");
+  tab->addColumn<float>("trkNumHits", trkNumHits, "");
+  tab->addColumn<float>("trkNumDTHits", trkNumDTHits, "");
+  tab->addColumn<float>("trkNumCSCHits", trkNumCSCHits, "");
+  tab->addColumn<float>("normChi2", normChi2, "");
+  tab->addColumn<float>("trkNumPixelHits", trkNumPixelHits, "");
+  tab->addColumn<float>("trkNumTrkLayers", trkNumTrkLayers, "");
 
-  tab->addColumn<float>("outerEta", outerEta, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("outerPhi", outerPhi, "",  nanoaod::FlatTable::FloatColumn);
+  tab->addColumn<float>("outerEta", outerEta, "");
+  tab->addColumn<float>("outerPhi", outerPhi, "");
 
-  tab->addColumn<float>("innerVx", innerVx, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("innerVy", innerVy, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("innerVz", innerVz, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("innerPt", innerPt, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("innerEta", innerEta, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("innerPhi", innerPhi, "",  nanoaod::FlatTable::FloatColumn);
+  tab->addColumn<float>("innerVx", innerVx, "");
+  tab->addColumn<float>("innerVy", innerVy, "");
+  tab->addColumn<float>("innerVz", innerVz, "");
+  tab->addColumn<float>("innerPt", innerPt, "");
+  tab->addColumn<float>("innerEta", innerEta, "");
+  tab->addColumn<float>("innerPhi", innerPhi, "");
 
-  tab->addColumn<float>("dsaMatch1", dsaMatch1, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dsaMatch1idx", dsaMatch1idx, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dsaMatch2", dsaMatch2, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dsaMatch2idx", dsaMatch2idx, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dsaMatch3", dsaMatch3, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dsaMatch3idx", dsaMatch3idx, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dsaMatch4", dsaMatch4, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dsaMatch4idx", dsaMatch4idx, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dsaMatch5", dsaMatch5, "",  nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("dsaMatch5idx", dsaMatch5idx, "",  nanoaod::FlatTable::FloatColumn);
+  tab->addColumn<float>("dsaMatch1", dsaMatch1, "");
+  tab->addColumn<float>("dsaMatch1idx", dsaMatch1idx, "");
+  tab->addColumn<float>("dsaMatch2", dsaMatch2, "");
+  tab->addColumn<float>("dsaMatch2idx", dsaMatch2idx, "");
+  tab->addColumn<float>("dsaMatch3", dsaMatch3, "");
+  tab->addColumn<float>("dsaMatch3idx", dsaMatch3idx, "");
+  tab->addColumn<float>("dsaMatch4", dsaMatch4, "");
+  tab->addColumn<float>("dsaMatch4idx", dsaMatch4idx, "");
+  tab->addColumn<float>("dsaMatch5", dsaMatch5, "");
+  tab->addColumn<float>("dsaMatch5idx", dsaMatch5idx, "");
 
   iEvent.put(std::move(tab));
 }

@@ -39,21 +39,20 @@ public:
     const auto& beamSpot = *beamSpotHandle;
     reco::Vertex beamSpotVertex(beamSpot.position(), beamSpot.covariance3D());
 
-    float x, y, z, ndof, chi2;
-    uint8_t ntracks;
-    x = beamSpot.position().x();
-    y = beamSpot.position().y();
-    z = beamSpot.position().z();
-    ndof = beamSpotVertex.ndof();
-    chi2 = beamSpotVertex.normalizedChi2();
-    ntracks = beamSpotVertex.nTracks();
+    std::vector<float> x, y, z, ndof, chi2, ntracks;
+    x.push_back(beamSpot.position().x());
+    y.push_back(beamSpot.position().y());
+    z.push_back(beamSpot.position().z());
+    ndof.push_back(beamSpotVertex.ndof());
+    chi2.push_back(beamSpotVertex.normalizedChi2());
+    ntracks.push_back(beamSpotVertex.nTracks());
 
-    beamSpotTab->addColumn<float>("x", {x}, "",  nanoaod::FlatTable::FloatColumn);
-    beamSpotTab->addColumn<float>("y", {y}, "",  nanoaod::FlatTable::FloatColumn);
-    beamSpotTab->addColumn<float>("z", {z}, "",  nanoaod::FlatTable::FloatColumn);
-    beamSpotTab->addColumn<float>("ndof", {ndof}, "",  nanoaod::FlatTable::FloatColumn);
-    beamSpotTab->addColumn<float>("chi2", {chi2}, "",  nanoaod::FlatTable::FloatColumn);
-    beamSpotTab->addColumn<uint8_t>("ntracks", {ntracks}, "",  nanoaod::FlatTable::UInt8Column);
+    beamSpotTab->addColumn<float>("x", x, "");
+    beamSpotTab->addColumn<float>("y", y, "");
+    beamSpotTab->addColumn<float>("z", z, "");
+    beamSpotTab->addColumn<float>("ndof", ndof, "");
+    beamSpotTab->addColumn<float>("chi2", chi2, "");
+    beamSpotTab->addColumn<uint8_t>("ntracks", ntracks, "");
 
     iEvent.put(std::move(beamSpotTab), "BS");
   }

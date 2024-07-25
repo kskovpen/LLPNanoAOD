@@ -3,6 +3,7 @@
 *.out
 *.err
 *.pyc
+*.root
 
 tmp/*
 crab_projects/*

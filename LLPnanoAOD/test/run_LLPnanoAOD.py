@@ -90,11 +90,11 @@ def create_condor_directories():
 
 
 def make_output_paths(config):
-  path = config.output_dir + "/LLPnanoAODv2"
+  path = config.output_dir + "/LLPnanoAODv1"
   if not os.path.exists(path):
       os.makedirs(path)
   if config.run_mini_and_nano:
-    path = config.output_dir + "/LLPminiAOD"
+    path = config.output_dir + "/LLPminiAODv1"
     if not os.path.exists(path):
         os.makedirs(path)
 
@@ -176,7 +176,7 @@ def setup_run_files(config):
         file.write(input_file_path + "\n")
 
   dataset_name = os.path.basename(config.output_dir)
-  output_file = config.output_dir + "/LLPnanoAODv2/" + dataset_name
+  output_file = config.output_dir + "/LLPnanoAODv1/" + dataset_name
   output_file = output_file.replace("/", "\/")
     
   voms_proxy_path = os.popen("voms-proxy-info -path").read().strip().replace("/", "\/")    
@@ -210,13 +210,25 @@ def setup_run_files(config):
 
   workDir = os.getcwd().replace("/", "\/")
   os.system("sed -i 's/<work_dir>/{}/g' {}".format(workDir,condor_run_script_name))
+
+  os.system("sed -i 's/<year>/{}/g' {}".format(config.year,condor_run_script_name))
+  run3 = "2022" in config.year or "2023" in config.year
+  if run3:
+    os.system("sed -i 's/<nanoAOD_runfile>/{}/g' {}".format("LLPnanoAOD_Run3_cfg.py",condor_run_script_name))
+  else:
+    os.system("sed -i 's/<nanoAOD_runfile>/{}/g' {}".format("LLPnanoAOD_cfg.py",condor_run_script_name))
   
   if config.run_mini_and_nano:
-    LLPminiAOD_file = config.output_dir + "/LLPminiAOD/" + dataset_name
+    LLPminiAOD_file = config.output_dir + "/LLPminiAODv1/" + dataset_name
     LLPminiAOD_file = LLPminiAOD_file.replace("/", "\/")
     os.system("sed -i 's/<LLPminiAOD_path>/{}/g' {}".format(LLPminiAOD_file,condor_run_script_name))
     os.system("sed -i 's/<save_LLPminiAOD>/{}/g' {}".format(config.save_mini,condor_run_script_name))
     print("save_mini: ", config.save_mini)
+    if run3:
+      os.system("sed -i 's/<miniAOD_runfile>/{}/g' {}".format("LLPminiAOD_Run3_cfg.py",condor_run_script_name))
+    else:
+      os.system("sed -i 's/<miniAOD_runfile>/{}/g' {}".format("LLPminiAOD_cfg.py",condor_run_script_name))
+
 
   return condor_run_script_name, hash_string, n_jobs
 

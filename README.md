@@ -34,17 +34,23 @@ LLPNanoAOD has been setup for `CMSSW_10_6_29` for Run 2.
 cmsrel CMSSW_10_6_29
 cd CMSSW_10_6_29/src
 cmsenv
-
-git clone git@github.com:kerstinlovisa/LLPNanoAOD.git
 ```
 
 Due to a bug to determine the charge of high pT tracks, corrections are made to RecoVertex scripts, based on PR to fix the bug: https://github.com/cms-sw/cmssw/pull/40479 for CMSSW_13_0_X.
-There is a an updated version of CheckHitPattern for later CMMSW releases that we want to use:
+There is a an updated version of CheckHitPattern for later CMMSW releases that we want to use.
+First add the packages:
 ```
 git cms-addpkg RecoVertex/KalmanVertexFit
 git cms-addpkg RecoVertex/VertexTools
 git cms-addpkg RecoVertex/KinematicFitPrimitives
 git cms-addpkg PhysicsTools/RecoUtils
+
+scram b -j
+```
+
+Then clone LLPnanoAOD and update the files from the LLPNanoAOD/RecoVertex_corrections and LLPNanoAOD/PhysicsTools_corrections directories:
+```
+git clone git@github.com:kerstinlovisa/LLPNanoAOD.git
 
 cp LLPNanoAOD/RecoVertex_corrections/VertexTools/src/* RecoVertex/VertexTools/src/
 cp LLPNanoAOD/RecoVertex_corrections/VertexTools/interface/* RecoVertex/VertexTools/interface/
@@ -71,11 +77,11 @@ cmsrel CMSSW_13_0_13
 cd CMSSW_13_0_13/src
 cmsenv
 
-git clone git@github.com:kerstinlovisa/LLPNanoAOD.git
-
 git cms-addpkg RecoVertex/KalmanVertexFit
 git cms-addpkg RecoVertex/VertexTools
 git cms-addpkg PhysicsTools/RecoUtils
+
+git clone git@github.com:kerstinlovisa/LLPNanoAOD.git
 
 cp LLPNanoAOD/RecoVertex_corrections/VertexTools/src/* RecoVertex/VertexTools/src/
 cp LLPNanoAOD/RecoVertex_corrections/VertexTools/interface/* RecoVertex/VertexTools/interface/
@@ -104,6 +110,8 @@ Main settings while running is set in `LLPNanoAOD/LLPnanoAOD/test/run_LLPnanoAOD
   * `GenPart`: include extended GenPart collection
   * `DGLMuon`: include DGLMuon collection and vertices collections: PatDGLVertex, DGLDSAVertex, DGLVertex
 * `year`: year is needed to determine global tag, set up for 2016, 2017, 2018 (string)
+  * for data: 2016HIPM, 2016 (no HIPM), 2017, 2018
+  * for MC: 2016, 2017, 2018
 
 * `datasets`: dictionary of input datasets in the format: `( output_dataset_path : dataset_name )`
   * `output_dataset_path`: this means that the complete output will be `output_base_path/output_dataset_path/`
@@ -119,8 +127,8 @@ Main settings while running is set in `LLPNanoAOD/LLPnanoAOD/test/run_LLPnanoAOD
 
 For **Run 3** the settings are very similar, see example in `LLPNanoAOD/LLPnanoAOD/test/run_LLPnanoAOD_Run3_config.py`. In addition to parameters above:
 * `year`: to accomodate for the different global tags, the year options are:
-  * for data: "2022ReReco", "2022Prompt", "2023"
-  * for MC: "2022PreEE", "2022PostEE", "2023PreBPix", "2023PostBPix"
+  * for data: 2022ReReco, 2022Prompt, 2023
+  * for MC: 2022PreEE, 2022PostEE, 2023PreBPix, 2023PostBPix
 
 ## Run locally ##
 

@@ -31,11 +31,25 @@ cd $CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test/crab
 source /cvmfs/cms.cern.ch/common/crab-setup.sh
 ./run_LLPminiAOD_crab.sh inputs/bkg_2018_AOD.conf
 ```
+
+Note that you can ignore this error, as the crab submission should still work:
+```
+ERROR: Invalid CRAB type 'inputs/inputs/bkg_2018_AOD.conf' provided, valid values are prod, pre and dev.
+Usage: ./run_LLPminiAOD_crab.sh [prod|pre|dev]
+```
+
 ### Settings ####
 Make sure to update the settings in `run_LLPminiAOD_crab.sh`:
+- `runFile`: different run files for run 2 and run 3:
+    - Run2: `LLPminiAOD_cfg.py`
+    - Run3: `LLPminiAOD_Run3_cfg.py`
 - `nCores`: number of cores to use
 - `maxMemory`: max number of memory calculated as: memory per core * `nCores`
 - `maxRuntime`: maximum run time
+- `year`: year to run on
+    - for data: 2016HIPM, 2016 (no HIPM), 2017, 2018, 2022ReReco, 2022Prompt, 2023
+    - for MC: 2016, 2017, 2018, 2022PreEE, 2022PostEE, 2023PreBPix, 2023PostBPix
+- `whitelist`: custom list of sites to run on
 - `filePerJob`: number of files to run per job for FileBased splitting - make sure to update for large datasets, max jobs is 10000 or set to 0 to automatically set smallest number of files for max 10000 jobs
 - `VERSION`: LLPminiAOD version - used for output tag
 - `--site`: Site where you have write permission
@@ -47,11 +61,14 @@ Make sure to update the settings in `run_LLPminiAOD_crab.sh`:
 - `--num-cores` = `nCores`
 - `--max-memory` = `maxMemory`
 - `--max-runtime-min` = `maxRuntime`
+- `--year` = `year`
 - `--work-area`: location of crab projects files
 - `--publication`: include this to published the dataset
 - `--input-DBS`: input dbs instance, default is 'global'
 - `--test`: to test run on a small file - see run tests section
 - `--dry-run`: for dry run
+- `--ignore_locality`: to include ignore locality for sites, has to be used with custom site whitelist
+- `--whitelist` = `whitelist`, only works with `--ignore_locality` flag, comment out both of these to run without use custom whitelist
 
 ## Run LLPnanoAOD ##
 Run LLPnanoAOD crab submission with `run_LLPnanoAOD_crab.sh` with an input file as argument:

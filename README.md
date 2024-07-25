@@ -110,6 +110,8 @@ Main settings while running is set in `LLPNanoAOD/LLPnanoAOD/test/run_LLPnanoAOD
   * `GenPart`: include extended GenPart collection
   * `DGLMuon`: include DGLMuon collection and vertices collections: PatDGLVertex, DGLDSAVertex, DGLVertex
 * `year`: year is needed to determine global tag, set up for 2016, 2017, 2018 (string)
+  * for data: 2016HIPM, 2016 (no HIPM), 2017, 2018
+  * for MC: 2016, 2017, 2018
 
 * `datasets`: dictionary of input datasets in the format: `( output_dataset_path : dataset_name )`
   * `output_dataset_path`: this means that the complete output will be `output_base_path/output_dataset_path/`
@@ -125,8 +127,8 @@ Main settings while running is set in `LLPNanoAOD/LLPnanoAOD/test/run_LLPnanoAOD
 
 For **Run 3** the settings are very similar, see example in `LLPNanoAOD/LLPnanoAOD/test/run_LLPnanoAOD_Run3_config.py`. In addition to parameters above:
 * `year`: to accomodate for the different global tags, the year options are:
-  * for data: "2022ReReco", "2022Prompt", "2023"
-  * for MC: "2022PreEE", "2022PostEE", "2023PreBPix", "2023PostBPix"
+  * for data: 2022ReReco, 2022Prompt, 2023
+  * for MC: 2022PreEE, 2022PostEE, 2023PreBPix, 2023PostBPix
 
 ## Run locally ##
 

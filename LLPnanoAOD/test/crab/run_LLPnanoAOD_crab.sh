@@ -21,7 +21,7 @@ source /cvmfs/cms.cern.ch/common/crab-setup.sh
 nCores=8
 maxMemory=$((1000 * $nCores))
 maxRuntime=2750
-filePerJob=1
+filePerJob=0
 VERSION=1
 
 whitelist="['T2_*_*']"

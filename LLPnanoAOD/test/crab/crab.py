@@ -86,8 +86,20 @@ def parseDatasetName(dataset):
         ext = '_' + ver
     # LLPminiAOD input
     if "LLPminiAOD" in ver:
-        vername = "LLPminiAOD"
-        ext = '_LLPminiAOD'
+        pattern = re.compile(r'^[^-]+-LLPminiAODv(\d+)_([^_]+)-([^_]+)_([^_]+)-([^_]+)-[a-f0-9]+$')
+        match = pattern.match(ver)
+        if match:
+            version = match.group(1)
+            run_information = match.group(2)
+            tag_version = match.group(3)
+            version1 = match.group(4)
+            version2 = match.group(5)
+            
+            vername = '{}-{}_{}-{}'.format(run_information, tag_version, version1, version2)
+            ext = '{}-{}_{}-{}'.format(run_information, tag_version, version1, version2)
+        else:
+            vername = "LLPminiAOD"
+            ext = '_LLPminiAOD'
     return procname, vername, ext
 
 
@@ -207,6 +219,8 @@ def createConfig(args, dataset, datasetname):
             print("Change splitting method or units per job argument -n to a higher value or to 0 to automatically set number of files per job.")
             return None, None
     config.Data.publication = args.publication
+    print("  --- PLEASE DOUBLE CHECK: ")
+    print("  --- output dataset tag: ", args.tag + '_' + vername)
     config.Data.outputDatasetTag = args.tag + '_' + vername
     config.Data.allowNonValidInputDataset = True
     config.Data.outLFNDirBase = args.outputdir
@@ -230,9 +244,8 @@ def createConfig(args, dataset, datasetname):
         config.Site.blacklist = options['siteblacklist'].split(',')
 
     if args.whitelist !="":
-        print("whitelist: ", args.whitelist)
         whitelist = ast.literal_eval(args.whitelist)
-        print("whitelist: ", whitelist)
+        print("  --- setting site whitelist: ", whitelist)
         config.Site.whitelist = whitelist
 
     if args.fnal:

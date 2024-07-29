@@ -18,17 +18,17 @@ runFile=LLPnanoAOD_cfg.py
 
 source /cvmfs/cms.cern.ch/common/crab-setup.sh
 
-nCores=4
+nCores=8
 maxMemory=$((1000 * $nCores))
 maxRuntime=2750
 filePerJob=1
 VERSION=1
 
-whitelist="['T2_US_*', 'T2_US_*', 'T2_CH_*', 'T2_IT_*', 'T1_IT_*']"
+whitelist="['T2_*_*']"
 
 # Year options for MC: 2016, 2016PreVFP, 2017, 2018, 2022PreEE, 2022PostEE, 2023PreBPix, 2023PostBPix
 # Year options for data: 2016HIPM, 2016 (no HIPM), 2017, 2018, 2022ReReco, 2022Prompt, 2023
-year=2022ReReco
+year=2022PostEE
 
 python3 $crabWorkspace/crab.py \
 -p $configWorkspace/$runFile \
@@ -48,10 +48,10 @@ python3 $crabWorkspace/crab.py \
 --input-DBS 'phys03' \
 --publication \
 --year $year \
---dryrun
+--ignore_locality \
+--whitelist "$whitelist" \
+--dryrun \
 # --runOnData
-# --ignore_locality \
-# --whitelist "$whitelist" \
 # --includeDGLMuon \
 # --set-input-dataset \
 #--send-external \

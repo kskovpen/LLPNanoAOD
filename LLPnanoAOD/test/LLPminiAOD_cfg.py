@@ -176,34 +176,12 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 process.MINIAODSIMoutput.outputCommands.append('keep *_generalTracks_*_*')
 
-# process.MINIAODSIMoutput.outputCommands.append('keep *_displacedStandAloneMuons_*_*')
-# process.MINIAODSIMoutput.outputCommands.append('keep *_muonReducedTrackExtras_*_*')
-# process.MINIAODSIMoutput.outputCommands.append('keep *_globalMuons_*_*')
-# process.MINIAODSIMoutput.outputCommands.append('keep *_standAloneMuons_*_*')
-
-process.MINIAODSIMoutput.outputCommands.append('keep recoTrackExtras_muonReducedTrackExtras__RECO') # tested
-
+process.MINIAODSIMoutput.outputCommands.append('keep recoTrackExtras_muonReducedTrackExtras__RECO')
 process.MINIAODSIMoutput.outputCommands.append('keep recoTracks_displacedStandAloneMuons__RECO')
 process.MINIAODSIMoutput.outputCommands.append('keep recoTrackExtras_displacedStandAloneMuons__RECO') 
-process.MINIAODSIMoutput.outputCommands.append('keep TrackingRecHitsOwned_displacedStandAloneMuons__RECO') # tested
-
-process.MINIAODSIMoutput.outputCommands.append('keep recoTrackExtras_globalMuons__RECO') # tested
-
-process.MINIAODSIMoutput.outputCommands.append('keep recoTrackExtras_standAloneMuons__RECO') # tested
-
-### Excluded
-# process.MINIAODSIMoutput.outputCommands.append('keep *_displacedGlobalMuons_*_*')
-# process.MINIAODSIMoutput.outputCommands.append('keep *_refittedStandAloneMuons_*_*')
-# process.MINIAODSIMoutput.outputCommands.append('keep *_muons_*_*')
-# process.MINIAODSIMoutput.outputCommands.append('keep recoTracks_standAloneMuons_UpdatedAtVtx_RECO')
-# process.MINIAODSIMoutput.outputCommands.append('keep SiPixelClusteredmNewDetSetVector_muonReducedTrackExtras__RECO')
-# process.MINIAODSIMoutput.outputCommands.append('keep SiStripClusteredmNewDetSetVector_muonReducedTrackExtras__RECO')
-# process.MINIAODSIMoutput.outputCommands.append('keep recoTrackExtrasedmAssociation_muonReducedTrackExtras__RECO')
-# process.MINIAODSIMoutput.outputCommands.append('keep TrackingRecHitsOwned_muonReducedTrackExtras__RECO')
-# process.MINIAODSIMoutput.outputCommands.append('keep recoTracks_globalMuons__RECO')
-# process.MINIAODSIMoutput.outputCommands.append('keep recoTracks_standAloneMuons__RECO')
-# process.MINIAODSIMoutput.outputCommands.append('keep TrackingRecHitsOwned_standAloneMuons__RECO')
-
+process.MINIAODSIMoutput.outputCommands.append('keep recoTrackExtras_globalMuons__RECO')
+process.MINIAODSIMoutput.outputCommands.append('keep recoTrackExtras_standAloneMuons__RECO')
+process.MINIAODSIMoutput.outputCommands.append('keep TrackingRecHitsOwned_displacedStandAloneMuons__RECO')
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag

@@ -86,17 +86,27 @@ def parseDatasetName(dataset):
         ext = '_' + ver
     # LLPminiAOD input
     if "LLPminiAOD" in ver:
-        pattern = re.compile(r'^[^-]+-LLPminiAODv(\d+)_([^_]+)-([^_]+)_([^_]+)-([^_]+)-[a-f0-9]+$')
-        match = pattern.match(ver)
-        if match:
-            version = match.group(1)
-            run_information = match.group(2)
-            tag_version = match.group(3)
-            version1 = match.group(4)
-            version2 = match.group(5)
+        pattern1 = re.compile(r'^[^-]+-LLPminiAODv(\d+)_([^_]+)-([^_]+)_([^_]+)-([^_]+)-[a-f0-9]+$')
+        pattern2 = re.compile(r'^[^-]+-LLPminiAODv(\d+)_([^_]+)-([^_]+)_([^_]+)-[a-f0-9]+$')
+        match1 = pattern1.match(ver)
+        match2 = pattern2.match(ver)
+        if match1:
+            version = match1.group(1)
+            run_information = match1.group(2)
+            tag_version = match1.group(3)
+            version1 = match1.group(4)
+            version2 = match1.group(5)
             
             vername = '{}-{}_{}-{}'.format(run_information, tag_version, version1, version2)
             ext = '{}-{}_{}-{}'.format(run_information, tag_version, version1, version2)
+        elif match2:
+            version = match2.group(1)
+            run_information = match2.group(2)
+            tag_version = match2.group(3)
+            version1 = match2.group(4)
+            
+            vername = '{}-{}_{}'.format(run_information, tag_version, version1)
+            ext = '{}-{}_{}'.format(run_information, tag_version, version1)
         else:
             vername = "LLPminiAOD"
             ext = '_LLPminiAOD'
@@ -220,6 +230,8 @@ def createConfig(args, dataset, datasetname):
             return None, None
     config.Data.publication = args.publication
     print("  --- PLEASE DOUBLE CHECK: ")
+    print("  --- runOnData: ", runOnData)
+    print("  --- year: ", args.year)
     print("  --- output dataset tag: ", args.tag + '_' + vername)
     config.Data.outputDatasetTag = args.tag + '_' + vername
     config.Data.allowNonValidInputDataset = True
@@ -677,7 +689,7 @@ def main():
                         help='Bool to include config setting config.Data.ignoreLocality = True. Default: %(default)s'
                         )
     parser.add_argument('--year',
-                        default="2018", 
+                        default="2022ReReco", 
                         help='Year. Default: %(default)'
                         )
     parser.add_argument('--whitelist',

@@ -14,7 +14,7 @@ filename=$(basename "$INPUT" .conf)
 crabWorkspace=$CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test/crab
 configWorkspace=$CMSSW_BASE/src/LLPNanoAOD/LLPnanoAOD/test
 
-runFile=LLPnanoAOD_cfg.py
+runFile=LLPnanoAOD_Run3_cfg.py
 
 source /cvmfs/cms.cern.ch/common/crab-setup.sh
 
@@ -28,7 +28,7 @@ whitelist="['T2_*_*']"
 
 # Year options for MC: 2016, 2016PreVFP, 2017, 2018, 2022PreEE, 2022PostEE, 2023PreBPix, 2023PostBPix
 # Year options for data: 2016HIPM, 2016 (no HIPM), 2017, 2018, 2022ReReco, 2022Prompt, 2023
-year=2022PostEE
+year=2022ReReco
 
 python3 $crabWorkspace/crab.py \
 -p $configWorkspace/$runFile \
@@ -47,11 +47,11 @@ python3 $crabWorkspace/crab.py \
 --includeGenPart \
 --input-DBS 'phys03' \
 --publication \
+--runOnData \
 --year $year \
---ignore_locality \
---whitelist "$whitelist" \
 --dryrun \
-# --runOnData
+# --ignore_locality \
+# --whitelist "$whitelist" \
 # --includeDGLMuon \
 # --set-input-dataset \
 #--send-external \

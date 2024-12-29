@@ -208,7 +208,7 @@ def createConfig(args, dataset, datasetname):
 
     configParams = ['nEvents=%s' % args.nEvents, 'runOnData=%s' % runOnData, 'nThreads=%s' % args.num_cores, 'year=%s' % args.year]
     if 'LLPnanoAOD' in args.tag:
-        configParams.extend(['includeDSAMuon=%s' % args.includeDSAMuon, 'includeBS=%s' % args.includeBS, 'includeGenPart=%s' % args.includeGenPart, 'includeDGLMuon=%s' % args.includeDGLMuon])   
+        configParams.extend(['includeDSAMuon=%s' % args.includeDSAMuon, 'includeBS=%s' % args.includeBS, 'includeGenPart=%s' % args.includeGenPart, 'includeDGLMuon=%s' % args.includeDGLMuon, 'includeDispJet=%s' % args.includeDispJet])   
 
     config.JobType.pyCfgParams = configParams
 
@@ -676,6 +676,10 @@ def main():
                         action='store_true', default=False,
                         help='Include Displaced GLobal Muon collection in LLPnanoAOD. Default: %(default)s'
                         )
+    parser.add_argument('--includeDispJet',
+                        action='store_true', default=False,
+                        help='Include Displaced Jet collections in LLPnanoAOD. Default: %(default)s'
+                        )
     parser.add_argument('--test',
                         action='store_true', default=False,
                         help='Test submission: only 1 job with 10 events will be submitted per input dataset. Default: %(default)s'
@@ -732,8 +736,11 @@ def main():
             l = l.strip()
             if not l or l.startswith('#'):
                 continue
-            datasetname = [s for s in l.split() if input_datatier not in s][0]
-            dataset = [s for s in l.split() if input_datatier in s][0]
+            datasetname = l.split('/')[1]
+            dataset = l
+            print(datasetname)
+#            datasetname = '/'+[s for s in l.split('/') if input_datatier not in s][1]
+#            dataset = '/'+[s for s in l.split('/') if input_datatier.replace('/', '') in s][0]
             cfg, cfgpath = createConfig(args, dataset, datasetname)
             if(cfg == None or cfgpath == None):
                 print("Config is none. Skipping dataset %s" % dataset)

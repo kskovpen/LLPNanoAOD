@@ -20,6 +20,12 @@ options.register('runOnData',
                     VarParsing.varType.bool,
                     "If running on data"
                 )
+options.register('includeDispJet',
+                    False,
+                    VarParsing.multiplicity.singleton,
+                    VarParsing.varType.bool,
+                    "Flag to include Displaced lepton+jet information"
+                )
 options.register('includeDSAMuon',
                     False,
                     VarParsing.multiplicity.singleton,
@@ -93,6 +99,8 @@ else:
         process = cms.Process('NANO',Run3_2023)
     if options.year == "2023PostBPix":
         process = cms.Process('NANO',Run3_2023) 
+    if options.year == "2024":
+        process = cms.Process('NANO',Run3_2023)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -174,8 +182,9 @@ else:
         globalTag = GlobalTag(process.GlobalTag, '130X_mcRun3_2023_realistic_v14', '')
     if options.year == "2023PostBPix":
         globalTag = GlobalTag(process.GlobalTag, '130X_mcRun3_2023_realistic_postBPix_v2', '')
+    if options.year == "2024":
+        globalTag = GlobalTag(process.GlobalTag, '133X_mcRun3_2024_realistic_v8', '')
 process.GlobalTag = globalTag
-
 
 # LLPnanoAOD custom producers
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi import *
@@ -208,7 +217,7 @@ process.muonVertexTable = cms.EDProducer("MuonVertexTableProducer",
     dsaMuons=cms.InputTag("displacedStandAloneMuons"),
     patMuons=cms.InputTag("linkedObjects","muons"),
     beamspot=cms.InputTag("offlineBeamSpot"),
-    generalTracks=cms.InputTag("generalTracks"),
+    generalTracks=cms.InputTag("lostTracks"),
     primaryVertex=cms.InputTag("offlineSlimmedPrimaryVertices")
     # runRefittedTracks=cms.bool(runRefittedTracks_)
 )
@@ -228,15 +237,30 @@ process.muonExtendedTable = cms.EDProducer("MuonExtendedTableProducer",
     dsaMuons=cms.InputTag("displacedStandAloneMuons"),
     primaryVertex=cms.InputTag("offlineSlimmedPrimaryVertices"),
     beamspot=cms.InputTag("offlineBeamSpot"),
-    generalTracks=cms.InputTag("generalTracks")
+    generalTracks=cms.InputTag("lostTracks")
 )
-
+# Displaced Jet
+process.load('LLPNanoAOD.LLPnanoAOD.displacedInclusiveVertexing_cff')
+# Displaced Jet table
+process.dispJetTable = cms.EDProducer("DispJetTableProducer",
+    rho=cms.InputTag("fixedGridRhoFastjetAll"),
+    electrons=cms.InputTag("linkedObjects","electrons"),
+    muons=cms.InputTag("linkedObjects","muons"),
+    jets=cms.InputTag("linkedObjects","jets"),
+    primaryVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    secondaryVertex = cms.InputTag("displacedInclusiveSecondaryVertices")
+)
+#muonTable.variables.pt
+    
 # Path and EndPath definitions
 if options.runOnData:
     process.nanoAOD_step = cms.Path(process.nanoSequence)
 else:
     process.nanoAOD_step = cms.Path(process.nanoSequenceMC)
-
+    
+if options.includeDispJet:
+    process.nanoAOD_step += process.displacedInclusiveVertexing
+    process.nanoAOD_step += process.dispJetTable
 if options.includeDSAMuon:
     process.nanoAOD_step += process.dSAMuonsTable
     process.nanoAOD_step += process.muonExtendedTable
